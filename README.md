@@ -7,13 +7,13 @@ Do all these commands within the server folder.
 - [Server Deployment](#server_deployment)
 - [Server API](#server_api)
 
-## Server Installation
+## <a name="server_installation"></a>Server Installation
     pip install -r requirements.txt
 
-## Server Deployment
+## <a name="server_deployment"></a>Server Deployment
 	python application.py
 
-## Server API
+## <a name="server_api"></a>Server API
 ### POST: /hello_world/name
 You can issue a `POST` request with the following fields to get a reply of 'Hello' + name you sent
 
