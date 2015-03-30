@@ -52,3 +52,12 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# PyCharm
+.idea/
+
+# Mac garbage
+.DS_Store
+
+# Data files
+*.csv
