@@ -58,3 +58,6 @@ target/
 
 # Mac garbage
 .DS_Store
+
+# Data files
+*.csv
