@@ -1,0 +1,130 @@
+body {
+  margin-top: 0px;
+  padding: 10px;
+  background-color: #FFFFFF;
+	
+}
+
+body > .container {
+  	margin-left: 100px;
+  	margin-right: 100px;
+  	max-width: 100%;
+}
+
+.screen-title {
+	font-family: Circular;
+	color: white;
+}
+.slider {
+	margin: 5px;
+	margin-bottom:20px;
+}.
+.slider-col label.label-font {
+	font-size: 20px;
+}
+
+.slider-value {
+	font-size: 20px;
+	font-family: Lato;
+}
+
+.slider-col {
+	padding-top: 25px;
+}
+
+.full-screen {
+	height: 100%;
+	width: 100%;
+}
+svg {
+	width: 600px;
+	margin: auto;
+}
+
+.state{
+		fill: none;
+		stroke: #a9a9a9;
+		stroke-width: 1;
+	}
+	.state:hover{
+		fill-opacity:0.5;
+	}
+	#tooltip {   
+		position: absolute;           
+		text-align: center;          
+		font: 12px sans-serif;        
+		background: white;          
+		pointer-events: none;         
+	}
+	#tooltip h4{
+		margin:0;
+		font-size:14px;
+	}
+	#tooltip{
+		border-radius:0px;
+		width:auto;
+		padding:0px;
+		color:white;
+		opacity:0;
+	}
+	#tooltip table{
+		table-layout:fixed;
+	}
+	#tooltip tr td{
+		padding:0;
+		margin:0;
+	}
+	#tooltip tr td:nth-child(1){
+		width:50px;
+	}
+	#tooltip tr td:nth-child(2){
+		text-align:center;
+	}
+
+.carousel-control{
+	background-image: none !important;
+}
+
+.select-group {
+	font-family: circular !important;
+}
+
+button.select-button {
+	border: none;
+	border-radius: 0px;
+}
+
+div.title {
+	  text-align: right;
+  padding: 40px;
+  font-size: 40px;
+  font-family: circular;
+}
+@font-face { font-family: Circular; src: url('../fonts/CircularStd-Bold.otf'); }
+
+body {
+	font: Circular;
+} 
+.btn-wrapper {
+	text-align: right;
+	padding-bottom: 50px;
+}
+
+.main-view {
+	padding-top: 50px;
+}
+
+.btn-group > .btn {
+	padding: 10px 10px;
+	font-size: 15px;
+}
+
+.pg-loading-screen .pg-loading-logo-header img {
+	display: none !important;
+}
+
+.loading-header {
+	font-family: Circular;
+	font-size: 50px;
+	padding-bottom: 20px;
+}
