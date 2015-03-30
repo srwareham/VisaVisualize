@@ -1,4 +1,4 @@
-# VisaVisualizer
+# Campaign Advisor
 
 ### Server
 Do all these commands within the server folder.
