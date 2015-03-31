@@ -40,6 +40,7 @@ class Resource:
 
     def download_if_necessary(self):
         if not self.is_locally_available():
+            print "Downloading \"" + self.resource_name + "\" from: " + self._source_url
             with open(self.get_local_path(), "wb") as file_out:
                 downloading = self._download_me()
                 processing = downloading
