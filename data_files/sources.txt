@@ -1,0 +1,3 @@
+contributions.csv: http://www.fec.gov/disclosurep/PDownload.do
+county_votes.csv: http://www.theguardian.com/news/datablog/2012/nov/07/us-2012-election-county-results-download
+zip_code_database.csv: http://www.unitedstateszipcodes.org/
