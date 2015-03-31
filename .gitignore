@@ -62,6 +62,9 @@ target/
 # Data files
 *.csv
 
+# Include sources file always
+!sources.txt
+
 # Node modules
 webapp/node_modules
 
