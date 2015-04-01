@@ -1,5 +1,5 @@
 import pandas as pd
-from tests.context import campaignadvisor
+from context import campaignadvisor
 
 def print_full(x):
     pd.set_option('display.max_rows', len(x))
