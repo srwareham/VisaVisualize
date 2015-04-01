@@ -81,6 +81,10 @@ resources_definitions = [
     Resource(
         "zip_code_database.csv",
         "https://dl.dropboxusercontent.com/u/28056448/EverythingData/zip_code_database.csv"
+    ),
+    Resource(
+        "national_counties.csv",
+        "https://dl.dropboxusercontent.com/u/28056448/EverythingData/national_counties.csv"
     )
 ]
 
