@@ -76,7 +76,6 @@ def example_zip_to_county():
     # Rename CONTRIBUTIONS_PATH if you would like to use a smaller test file
     # CONTRIBUTIONS_PATH = os.path.join(DATA_DIR_PATH, "VA.csv")
     contributions_resource = campaignadvisor.resources.get_resource("contributions.csv")
-    contributions_resource.download_if_necessary()
     contributions = pd.read_csv(contributions_resource.get_local_path())
     zip_codes_map = get_zip_codes_map()
     # NOTE: keyword argument is not optional. The apply method is just a little hanky
