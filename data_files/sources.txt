@@ -1,3 +1,5 @@
 contributions.csv: http://www.fec.gov/disclosurep/PDownload.do
 county_votes.csv: http://www.theguardian.com/news/datablog/2012/nov/07/us-2012-election-county-results-download
 zip_code_database.csv: http://www.unitedstateszipcodes.org/
+RuralAtlasData10.xls: http://www.ers.usda.gov/dataFiles/Atlas_of_Rural_America/RuralAtlasData10.xls
+national_counties.csv: http://www2.census.gov/geo/docs/reference/codes/files/national_county.txt
