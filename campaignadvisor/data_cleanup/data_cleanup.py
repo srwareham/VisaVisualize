@@ -101,6 +101,7 @@ def _get_state_name(state_abbreviation):
     else:
         return NO_STATE_NAME
 
+
 class FIPSMapper:
     def __init__(self, fips_to_state_county, fips_to_state, state_county_to_fips, state_to_fips):
         self.fips_to_state_county = fips_to_state_county
@@ -156,19 +157,19 @@ def _get_zip_codes_map():
     return zip_codes
 
 
-# TODO: find way that does not take keyword arguments. Makes it look optional when it is not
-def get_state_county_from_zip_code(zip_code, zip_codes_map=None):
+def get_state_county_from_zip_code(zip_code):
     """
     Given a zip code, return its corresponding (state, county) tuple
-    :param zip_code:
-    :return: The zip code;s corresponding (state's name, county's name)
+    :param zip_code: A zip code of length 5 or 9
+    :return: The zip code's corresponding (state's name, county's name)
     """
-    if zip_codes_map is None:
-        raise
+    zip_codes_map = _get_the_zip_code_map()
+    # Accept any type of zip code representation (numpy.float64, int, str...etc)
+    # Throws away trailing decimals that are unwanted
     try:
         zip_code = str(int(zip_code))
     except:
-        return "%s" % NO_COUNTY_NAME
+        return NO_STATE_NAME, NO_COUNTY_NAME
 
     # Convert long zip codes to short
     if len(zip_code) == LONG_ZIP_CODE_LENGTH:
@@ -176,7 +177,7 @@ def get_state_county_from_zip_code(zip_code, zip_codes_map=None):
     if zip_code in zip_codes_map:
         return zip_codes_map[zip_code]
     else:
-        return "%s" % NO_COUNTY_NAME
+        return NO_STATE_NAME, NO_COUNTY_NAME
 
 
 FIPS_FIELD_NAMES = ["state_abbreviation", "state_fips", "county_fips", "county_name", "fips_class"]
@@ -236,7 +237,7 @@ def get_state_county_from_fips(fips_code):
     if fips_code in fips_to_state_county:
         return fips_to_state_county[fips_code]
     else:
-        return NO_COUNTY_NAME
+        return NO_STATE_NAME, NO_COUNTY_NAME
 
 
 def get_state_from_fips(fips_code):
@@ -299,10 +300,9 @@ def example_zip_to_county():
     # CONTRIBUTIONS_PATH = os.path.join(DATA_DIR_PATH, "VA.csv")
     contributions_resource = campaignadvisor.resources.get_resource("contributions.csv")
     contributions = pd.read_csv(contributions_resource.get_local_path())
-    zip_codes_map = _get_zip_codes_map()
     # NOTE: keyword argument is not optional. The apply method is just a little hanky
     # Full blown code smell, probably a better way.
-    print contributions["contbr_zip"].apply(get_state_county_from_zip_code, zip_codes_map=zip_codes_map)
+    print contributions["contbr_zip"].apply(get_state_county_from_zip_code)
 
 
 def debug():
