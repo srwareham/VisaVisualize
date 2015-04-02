@@ -168,7 +168,7 @@ def get_state_county_from_zip_code(zip_code):
     # Throws away trailing decimals that are unwanted
     try:
         zip_code = str(int(zip_code))
-    except:
+    except ValueError:
         return NO_STATE_NAME, NO_COUNTY_NAME
 
     # Convert long zip codes to short
@@ -216,7 +216,7 @@ def _get_fips_mapper():
             if state_county not in state_county_to_fips:
                 state_county_to_fips[state_county] = county_fips
 
-            # Build state_to_fips:
+                # Build state_to_fips:
                 if state_name not in state_to_fips:
                     state_to_fips[state_name] = state_fips
         return FIPSMapper(fips_to_state_county, fips_to_state, state_county_to_fips, state_to_fips)
@@ -253,13 +253,10 @@ def get_state_from_fips(fips_code):
         return NO_STATE_NAME
 
 
-# Return value is not guaranteed if county name collisions occur in a state
-# Additionally, some states have municipalities with the same name as the county (Fairfax vs Fairfax County)
-# Behavior in this case is non-deterministic but should return the value of the county
 # TODO: Standardize how which will be the county name "Alger County" or "Alger"
 # TODO: Perhaps add case insensitivity?
 
-def get_fips_from_state_county(state, county):
+def get_fips_from_state_county(state_county):
     """
     Get the fips code of a county in a given state
 
@@ -270,11 +267,11 @@ def get_fips_from_state_county(state, county):
     NOTE: Some states have municipalities with the same name as the county (Fairfax vs Fairfax County)
     This likely will resolve correctly to the county name, but this is not guaranteed
 
-    :param state: The properly capitalized name of the county's state
-    :param county: The properly capitalized name of the county (ie. "Fairfax County" "Baltimore city")
+    :param state_county: A tuple containing the properly capitalized (state, county_ ie:  ("Maryland", "Fairfax County")
     :return: The fips code of the desired city
     """
-    state_county = state, county
+    # Convert to tuple in case was passed in as a list etc
+    state_county = state_county[0], state_county[1]
     state_county_to_fips = _get_the_fips_mapper().state_county_to_fips
     if state_county in state_county_to_fips:
         return state_county_to_fips[state_county]
@@ -307,7 +304,7 @@ def example_zip_to_county():
 
 def debug():
     starting_state_county = ("Virginia", "Fairfax County")
-    fips_code = get_fips_from_state_county(starting_state_county[0], starting_state_county[1])
+    fips_code = get_fips_from_state_county(starting_state_county)
     state_county = get_state_county_from_fips(fips_code)
     state = state_county[0]
     state_fips = get_fips_from_state(state)
