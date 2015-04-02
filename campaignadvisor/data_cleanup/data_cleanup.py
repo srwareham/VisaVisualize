@@ -95,6 +95,12 @@ _STATE_ABBREVIATIONS = states = {
 }
 
 
+def _get_state_name(state_abbreviation):
+    if state_abbreviation in _STATE_ABBREVIATIONS:
+        return _STATE_ABBREVIATIONS[state_abbreviation]
+    else:
+        return NO_STATE_NAME
+
 class FIPSMapper:
     def __init__(self, fips_to_state_county, fips_to_state, state_county_to_fips, state_to_fips):
         self.fips_to_state_county = fips_to_state_county
@@ -130,8 +136,8 @@ def _get_zip_codes_map():
         for row in reader:
             # Look out for types, they're different everywhere and need to be consistent
             zipcode = str(row['zip'])
-            # Change in implementation may require state being passed as well
-            # state = row['state']
+            state_abbreviation = str(row['state'])
+            state_name = _get_state_name(state_abbreviation)
             county = str(row['county'])
             # Cannot split no length strings
             if len(county) == 0:
@@ -142,12 +148,18 @@ def _get_zip_codes_map():
             # Throw out stop words at the end of the county name
             if split[-1] in ZIP_STOP_WORDS:
                 county = " ".join(split[:-1]).strip()
-            zip_codes[zipcode] = county
+            state_county = state_name, county
+            zip_codes[zipcode] = state_county
     return zip_codes
 
 
 # TODO: find way that does not take keyword arguments. Makes it look optional when it is not
-def get_county(zip_code, zip_codes_map=None):
+def get_state_county_from_zip_code(zip_code, zip_codes_map=None):
+    """
+    Given a zip code, return its corresponding (state, county) tuple
+    :param zip_code:
+    :return: The zip code;s corresponding (state's name, county's name)
+    """
     if zip_codes_map is None:
         raise
     try:
@@ -179,10 +191,7 @@ def _get_fips_mapper():
         for row in reader:
             # Look out for types, they're different everywhere and need to be consistent
             state_abbreviation = str(row["state_abbreviation"])
-            state_name = NO_STATE_NAME
-            # NOTE: collisions may occur with us minor outlying islands
-            if state_abbreviation in _STATE_ABBREVIATIONS:
-                state_name = _STATE_ABBREVIATIONS[state_abbreviation]
+            state_name = _get_state_name(state_abbreviation)
             state_fips = str(row["state_fips"])
             county_fips = state_fips + str(row["county_fips"])
             county_name = str(row["county_name"])
@@ -290,7 +299,7 @@ def example_zip_to_county():
     zip_codes_map = _get_zip_codes_map()
     # NOTE: keyword argument is not optional. The apply method is just a little hanky
     # Full blown code smell, probably a better way.
-    print contributions["contbr_zip"].apply(get_county, zip_codes_map=zip_codes_map)
+    print contributions["contbr_zip"].apply(get_state_county_from_zip_code, zip_codes_map=zip_codes_map)
 
 
 def debug():
