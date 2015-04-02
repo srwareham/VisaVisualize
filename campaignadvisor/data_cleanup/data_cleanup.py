@@ -139,15 +139,18 @@ def _get_zip_codes_map():
             state_abbreviation = str(row['state'])
             state_name = _get_state_name(state_abbreviation)
             county = str(row['county'])
+            # Do not want empty strings in the map
             # Cannot split no length strings
             if len(county) == 0:
                 continue
+            """
             split = county.split()
             # TODO: will cause errors when city is valid.
             # TODO: add city whitelist, perhaps don't use it at all
             # Throw out stop words at the end of the county name
             if split[-1] in ZIP_STOP_WORDS:
                 county = " ".join(split[:-1]).strip()
+            """
             state_county = state_name, county
             zip_codes[zipcode] = state_county
     return zip_codes
@@ -320,3 +323,4 @@ def debug():
 
 if __name__ == "__main__":
     debug()
+    example_zip_to_county()
