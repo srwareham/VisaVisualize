@@ -1,7 +1,7 @@
 import pandas as pd
 import csv
 
-import campaignadvisor.resources
+from context import campaignadvisor
 
 """
 Data cleanup utility
