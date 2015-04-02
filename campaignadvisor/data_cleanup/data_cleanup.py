@@ -32,7 +32,7 @@ CONTRIBUTIONS_FIELD_NAMES = ["cmte_id", "cand_id", "cand_nm", "contbr_nm", "cont
                              "contbr_employer", "contbr_occupation", "contb_receipt_amt", "contb_receipt_dt",
                              "receipt_desc", "memo_cd", "memo_text", "form_tp", "file_num", "tran_id", "election_tp"]
 
-STATE_ABBREVIATIONS = states = {
+_STATE_ABBREVIATIONS = states = {
     'AK': 'Alaska',
     'AL': 'Alabama',
     'AR': 'Arkansas',
@@ -95,7 +95,33 @@ STATE_ABBREVIATIONS = states = {
 }
 
 
-def get_zip_codes_map():
+class FIPSMapper:
+    def __init__(self, fips_to_state_county, fips_to_state, state_county_to_fips, state_to_fips):
+        self.fips_to_state_county = fips_to_state_county
+        self.fips_to_state = fips_to_state
+        self.state_county_to_fips = state_county_to_fips
+        self.state_to_fips = state_to_fips
+
+# Global variables (strictly for optimization purposes)
+the_zip_code_map = None
+the_fips_mapper = None
+
+
+def _get_the_zip_code_map():
+    global the_zip_code_map
+    if the_zip_code_map is None:
+        the_zip_code_map = _get_zip_codes_map()
+    return the_zip_code_map
+
+
+def _get_the_fips_mapper():
+    global the_fips_mapper
+    if the_fips_mapper is None:
+        the_fips_mapper = _get_fips_mapper()
+    return the_fips_mapper
+
+
+def _get_zip_codes_map():
     # Mapping of zipcode to county name
     zip_codes = {}
     zip_codes_resource = campaignadvisor.resources.get_resource("zip_code_database.csv")
@@ -142,7 +168,7 @@ FIPS_FIELD_NAMES = ["state_abbreviation", "state_fips", "county_fips", "county_n
 
 
 # TODO: standardize what county names will be
-def get_fips_maps():
+def _get_fips_mapper():
     national_counties_resource = campaignadvisor.resources.get_resource("national_counties.csv")
     fips_to_state_county = {}
     fips_to_state = {}
@@ -155,8 +181,8 @@ def get_fips_maps():
             state_abbreviation = str(row["state_abbreviation"])
             state_name = NO_STATE_NAME
             # NOTE: collisions may occur with us minor outlying islands
-            if state_abbreviation in STATE_ABBREVIATIONS:
-                state_name = STATE_ABBREVIATIONS[state_abbreviation]
+            if state_abbreviation in _STATE_ABBREVIATIONS:
+                state_name = _STATE_ABBREVIATIONS[state_abbreviation]
             state_fips = str(row["state_fips"])
             county_fips = state_fips + str(row["county_fips"])
             county_name = str(row["county_name"])
@@ -180,7 +206,7 @@ def get_fips_maps():
             # Build state_to_fips:
                 if state_name not in state_to_fips:
                     state_to_fips[state_name] = state_fips
-        return fips_to_state_county, fips_to_state, state_county_to_fips, state_to_fips
+        return FIPSMapper(fips_to_state_county, fips_to_state, state_county_to_fips, state_to_fips)
 
 
 def get_state_county_from_fips(fips_code):
@@ -194,9 +220,9 @@ def get_state_county_from_fips(fips_code):
     :param fips_code: A county's fips code
     :return: The tuple: (properly capitalized state name, properly capitalized county name)
     """
-    fips_to_county = get_fips_maps()[0]
-    if fips_code in fips_to_county:
-        return fips_to_county[fips_code]
+    fips_to_state_county = _get_the_fips_mapper().fips_to_state_county
+    if fips_code in fips_to_state_county:
+        return fips_to_state_county[fips_code]
     else:
         return NO_COUNTY_NAME
 
@@ -207,7 +233,7 @@ def get_state_from_fips(fips_code):
     :param fips_code: A state's fips code
     :return: A state's properly capitalized name
     """
-    fips_to_state = get_fips_maps()[1]
+    fips_to_state = _get_the_fips_mapper().fips_to_state
     if fips_code in fips_to_state:
         return fips_to_state[fips_code]
     else:
@@ -236,7 +262,7 @@ def get_fips_from_state_county(state, county):
     :return: The fips code of the desired city
     """
     state_county = state, county
-    state_county_to_fips = get_fips_maps()[2]
+    state_county_to_fips = _get_the_fips_mapper().state_county_to_fips
     if state_county in state_county_to_fips:
         return state_county_to_fips[state_county]
     else:
@@ -249,7 +275,7 @@ def get_fips_from_state(state):
     :param state: The properly capitalized name of a state
     :return: The state's fips code
     """
-    state_to_fips = get_fips_maps()[3]
+    state_to_fips = _get_the_fips_mapper().state_to_fips
     if state in state_to_fips:
         return state_to_fips[state]
     else:
@@ -261,7 +287,7 @@ def example_zip_to_county():
     # CONTRIBUTIONS_PATH = os.path.join(DATA_DIR_PATH, "VA.csv")
     contributions_resource = campaignadvisor.resources.get_resource("contributions.csv")
     contributions = pd.read_csv(contributions_resource.get_local_path())
-    zip_codes_map = get_zip_codes_map()
+    zip_codes_map = _get_zip_codes_map()
     # NOTE: keyword argument is not optional. The apply method is just a little hanky
     # Full blown code smell, probably a better way.
     print contributions["contbr_zip"].apply(get_county, zip_codes_map=zip_codes_map)
