@@ -100,7 +100,17 @@ _STATE_ABBREVIATIONS = states = {
     'WA': 'Washington',
     'WI': 'Wisconsin',
     'WV': 'West Virginia',
-    'WY': 'Wyoming'
+    'WY': 'Wyoming',
+    # Military state codes
+    'AA': 'Armed Forces Americas',
+    'AE': 'Armed Forces Africa, Canada, Europe, Middle East',
+    'AP': 'Armed Forces Pacific'
+}
+
+CUSTOM_FIPS = {
+    'armed forces americas': "-2",
+    'armed forces africa, canada, europe, middle east': "-3",
+    'armed forces pacific': "-4"
 }
 
 
@@ -238,6 +248,9 @@ def _get_fips_mapper():
                 # Build state_to_fips:
                 if state_name not in state_to_fips:
                     state_to_fips[state_name] = state_fips
+        for key in CUSTOM_FIPS:
+            val = CUSTOM_FIPS[key]
+            state_to_fips[key] = val
         return FIPSMapper(fips_to_state_county, fips_to_state, state_county_to_fips, state_to_fips)
 
 
