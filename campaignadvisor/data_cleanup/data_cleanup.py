@@ -16,8 +16,17 @@ NO_COUNTY_NAME = "NO_COUNTY_NAME"
 NO_STATE_NAME = "NO_STATE_NAME"
 # Replacement text for when there is no fips code
 NO_FIPS_CODE = "0"
-# Extraneous words in the zip code file
-ZIP_STOP_WORDS = ['County', 'City']
+# Extraneous words to be removed from county names
+# NOTE: stop words that are substrings of other stop words must appear AFTER them in this list.
+COUNTY_STOP_WORDS = [
+    'city and municipality of',
+    'city of',
+    'municipality of',
+    'census area',
+    'borough',
+    'city',
+    'county',
+]
 # Length of zip codes provided in zip code file
 SHORT_ZIP_CODE_LENGTH = 5
 # Length of zip codes that can occur in contributions
@@ -102,6 +111,19 @@ def _get_state_name(state_abbreviation):
         return NO_STATE_NAME
 
 
+# TODO: add whitelist when should actually read Kansas City (if that were a real county)
+def _get_clean_county_name(dirty_county_name):
+    clean_county_name = dirty_county_name.lower()
+    for stop_word in COUNTY_STOP_WORDS:
+        if stop_word in clean_county_name:
+            clean_county_name = clean_county_name.replace(stop_word, "").strip()
+    return clean_county_name
+
+
+def _get_clean_state_name(dirty_state_name):
+    return dirty_state_name.lower()
+
+
 class FIPSMapper:
     def __init__(self, fips_to_state_county, fips_to_state, state_county_to_fips, state_to_fips):
         self.fips_to_state_county = fips_to_state_county
@@ -139,19 +161,14 @@ def _get_zip_codes_map():
             zipcode = str(row['zip'])
             state_abbreviation = str(row['state'])
             state_name = _get_state_name(state_abbreviation)
-            county = str(row['county'])
+            # Put to lower case for consistency
+            state_name = _get_clean_state_name(state_name)
+            # Throw away city, borough, county, etc change to lower case
+            county = _get_clean_county_name(str(row['county']))
             # Do not want empty strings in the map
-            # Cannot split no length strings
             if len(county) == 0:
                 continue
-            """
-            split = county.split()
-            # TODO: will cause errors when city is valid.
-            # TODO: add city whitelist, perhaps don't use it at all
-            # Throw out stop words at the end of the county name
-            if split[-1] in ZIP_STOP_WORDS:
-                county = " ".join(split[:-1]).strip()
-            """
+
             state_county = state_name, county
             zip_codes[zipcode] = state_county
     return zip_codes
@@ -196,9 +213,11 @@ def _get_fips_mapper():
             # Look out for types, they're different everywhere and need to be consistent
             state_abbreviation = str(row["state_abbreviation"])
             state_name = _get_state_name(state_abbreviation)
+            state_name = _get_clean_state_name(state_name)
             state_fips = str(row["state_fips"])
             county_fips = state_fips + str(row["county_fips"])
             county_name = str(row["county_name"])
+            county_name = _get_clean_county_name(county_name)
 
             state_county = (state_name, county_name)
 
@@ -271,7 +290,8 @@ def get_fips_from_state_county(state_county):
     :return: The fips code of the desired city
     """
     # Convert to tuple in case was passed in as a list etc
-    state_county = state_county[0], state_county[1]
+    # Convert to lowercase to support lookup
+    state_county = _get_clean_state_name(state_county[0]), _get_clean_county_name(state_county[1])
     state_county_to_fips = _get_the_fips_mapper().state_county_to_fips
     if state_county in state_county_to_fips:
         return state_county_to_fips[state_county]
@@ -285,6 +305,8 @@ def get_fips_from_state(state):
     :param state: The properly capitalized name of a state
     :return: The state's fips code
     """
+    # Lowercase for lookup
+    state = _get_clean_state_name(state)
     state_to_fips = _get_the_fips_mapper().state_to_fips
     if state in state_to_fips:
         return state_to_fips[state]
