@@ -382,6 +382,20 @@ def example_counts_by_fips():
     print contributions.groupby('FIPS').size()
 
 
+def example_show_unknown_locations():
+    """
+    Print out the distribution of counts of contributions from each fips code
+    -1 is no known data about the location (some are us territories which can easily have cursory support)
+    -2 through -4 are Military base codes
+    :return:
+    """
+    contributions_resource = campaignadvisor.resources.get_resource("contributions.csv")
+    contributions = pd.read_csv(contributions_resource.get_local_path(), dtype=str)
+    contributions['FIPS'] = contributions["contbr_zip"].apply(get_fips_from_zip_code)
+
+    print contributions[contributions['FIPS'] == NO_FIPS_CODE][['FIPS', 'contbr_city', 'contbr_st', 'contbr_zip']]
+
+
 def debug():
     starting_state_county = ("Virginia", "Fairfax County")
     fips_code = get_fips_from_state_county(starting_state_county)
