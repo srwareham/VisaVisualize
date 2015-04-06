@@ -175,10 +175,11 @@ def _get_zip_codes_map():
             state_name = _get_clean_state_name(state_name)
             # Throw away city, borough, county, etc change to lower case
             county = _get_clean_county_name(str(row['county']))
-            # Do not want empty strings in the map
             if len(county) == 0:
-                continue
+                county = NO_COUNTY_NAME
 
+            if len(state_name) == 0:
+                state_name = NO_STATE_NAME
             state_county = state_name, county
             zip_codes[zipcode] = state_county
     return zip_codes
@@ -206,6 +207,7 @@ FIPS_FIELD_NAMES = ["state_abbreviation", "state_fips", "county_fips", "county_n
 
 
 # TODO: standardize what county names will be
+# TODO: add us territories to have custom made fips codes
 def _get_fips_mapper():
     national_counties_resource = campaignadvisor.resources.get_resource("national_counties.csv")
     fips_to_state_county = {}
