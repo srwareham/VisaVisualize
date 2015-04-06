@@ -1,0 +1,11 @@
+Using number_of_contributions_vs_white_non_hispanics.py
+Contributions Count			vs		Median Household Income 2012
+Contributions Count			vs		Population Density 2010
+Contributions Count			vs		White Non-Hispanic Percentage 2010
+
+Using unemployment_vs_median_contribution.py
+Contribution Amount			vs		Median Household Income 2012
+Contribution Amount			vs		Population Density 2010
+Contribution Amount			vs		White Non-Hispanic Percentage 2010
+
+An example for filtering out counties with less than 100 contributions is found in number_of_contributions_vs_white_non_hispanics.py
