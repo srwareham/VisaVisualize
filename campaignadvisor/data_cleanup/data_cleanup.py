@@ -15,7 +15,7 @@ NO_COUNTY_NAME = "NO_COUNTY_NAME"
 # Replacement text for when there is no state name
 NO_STATE_NAME = "NO_STATE_NAME"
 # Replacement text for when there is no fips code
-NO_FIPS_CODE = "0"
+NO_FIPS_CODE = "-1"
 # Extraneous words to be removed from county names
 # NOTE: stop words that are substrings of other stop words must appear AFTER them in this list.
 COUNTY_STOP_WORDS = [
