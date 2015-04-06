@@ -190,16 +190,11 @@ def get_state_county_from_zip_code(zip_code):
     :param zip_code: A zip code of length 5 or 9
     :return: The zip code's corresponding (state's name, county's name)
     """
-    zip_codes_map = _get_the_zip_code_map()
-    # Accept any type of zip code representation (numpy.float64, int, str...etc)
-    # Throws away trailing decimals that are unwanted
-    try:
-        zip_code = str(int(zip_code))
-    except ValueError:
+    if type(zip_code) != type(" "):
         return NO_STATE_NAME, NO_COUNTY_NAME
-
+    zip_codes_map = _get_the_zip_code_map()
     # Convert long zip codes to short
-    if len(zip_code) == LONG_ZIP_CODE_LENGTH:
+    if len(zip_code) > SHORT_ZIP_CODE_LENGTH:
         zip_code = zip_code[:SHORT_ZIP_CODE_LENGTH]
     if zip_code in zip_codes_map:
         return zip_codes_map[zip_code]
