@@ -336,6 +336,29 @@ def get_fips_from_state(state):
         return NO_FIPS_CODE
 
 
+def get_fips_from_zip_code(zip_code):
+    """
+    Return the county fips code of a zip code.
+    If no county is found, NO_FIPS_CODE is returned
+    WILL NOT return state fips code in any instance
+    Useful for pandas apply function
+
+    NOTE: Some zip codes fall under multiple counties.  Whichever one is listed in the
+    input data set will be used, no heuristic described here.
+
+    :param zip_code: Zip code to convert
+    :return: Corresponding county fips code
+    """
+
+    # IF not a string, return NO_FIPS_CODE
+    if type(zip_code) != type(" "):
+        return NO_FIPS_CODE
+
+    state_county = get_state_county_from_zip_code(zip_code)
+    fips_code = get_fips_from_state_county(state_county)
+    return fips_code
+
+
 def example_zip_to_county():
     # Rename CONTRIBUTIONS_PATH if you would like to use a smaller test file
     # CONTRIBUTIONS_PATH = os.path.join(DATA_DIR_PATH, "VA.csv")
