@@ -256,15 +256,21 @@ def get_state_county_from_fips(fips_code):
     Given a county's fips code , return a tuple of its state's properly capitalized name followed by
     its properly capitalized name.
 
-    NOTE: The formatting of the name returned is currently "Alger County" rather than "Alger"
+    NOTE: The formatting of the name returned is currently "alger" rather than "Alger County"
     This is subject to change.
 
+    NOTE: If no county exists but a state can be discerned, the (state_name, NO_COUNTY_NAME) will be returned
+
     :param fips_code: A county's fips code
-    :return: The tuple: (properly capitalized state name, properly capitalized county name)
+    :return: The tuple: (lowercase state name, lowercase county name)
     """
     fips_to_state_county = _get_the_fips_mapper().fips_to_state_county
+    fips_to_state = _get_the_fips_mapper().fips_to_state
+    state_fips_code = fips_code[:2]
     if fips_code in fips_to_state_county:
         return fips_to_state_county[fips_code]
+    elif state_fips_code in fips_to_state:
+        return fips_to_state[state_fips_code], NO_COUNTY_NAME
     else:
         return NO_STATE_NAME, NO_COUNTY_NAME
 
