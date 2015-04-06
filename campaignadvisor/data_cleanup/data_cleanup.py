@@ -294,6 +294,7 @@ def get_state_from_fips(fips_code):
 def get_fips_from_state_county(state_county):
     """
     Get the fips code of a county in a given state
+    If state data is available but county data is not, the state fips code will be returned
 
     NOTE: This function expects input in the form "COUNTY_NAME + County"
     This implementation may vary
@@ -307,10 +308,15 @@ def get_fips_from_state_county(state_county):
     """
     # Convert to tuple in case was passed in as a list etc
     # Convert to lowercase to support lookup
-    state_county = _get_clean_state_name(state_county[0]), _get_clean_county_name(state_county[1])
+    state_name = _get_clean_state_name(state_county[0])
+    county_name = _get_clean_county_name(state_county[1])
+    state_county = state_name, county_name
     state_county_to_fips = _get_the_fips_mapper().state_county_to_fips
+    state_to_fips = _get_the_fips_mapper().state_to_fips
     if state_county in state_county_to_fips:
         return state_county_to_fips[state_county]
+    elif state_name in state_to_fips:
+        return state_to_fips[state_name]
     else:
         return NO_FIPS_CODE
 
