@@ -359,6 +359,27 @@ def get_fips_from_zip_code(zip_code):
     return fips_code
 
 
+def get_clean_fips(fips):
+    """
+    Given a FIPS code, ensure it is returned as a properly formatted FIPS code of length 5
+
+    Example:
+    get_clean_fips(123) = "00123"
+    get_clean_fips("0002") = "00002"
+    get_clean_fips("00001") = "00001
+
+    :param fips: The FIPS code to clean
+    :return: The 5-digit FIPS code as a string
+    """
+    as_string = str(fips)
+    size = len(as_string)
+    fips_length = 5
+    difference = fips_length - size
+    if difference > 0:
+        as_string = "0" * difference + as_string
+    return as_string
+
+
 def example_zip_to_county():
     # Rename CONTRIBUTIONS_PATH if you would like to use a smaller test file
     # CONTRIBUTIONS_PATH = os.path.join(DATA_DIR_PATH, "VA.csv")
