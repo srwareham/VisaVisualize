@@ -63,8 +63,7 @@ target/
 *.csv
 *.xls
 
-# Pickle files
-# will perhaps undo later
+# (Temporary?) Pickle files
 pickles/
 
 # Include sources file always

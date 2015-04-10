@@ -2,12 +2,28 @@
 	<div class="row">
 		<div class="row main-row">
 			<div class="col-md-4">
-				Test
+				<md-content class="md-padding" layout="column">
+			    <form ng-submit="$event.preventDefault()">
+			      <md-autocomplete
+			          ng-disabled="isDisabled"
+			          md-no-cache="noCache"
+			          md-selected-item="selectedItem"
+			          md-search-text-change="searchTextChange(searchText)"
+			          md-search-text="searchText"
+			          md-selected-item-change="selectedItemChange(item)"
+			          md-items="item in querySearch(searchText)"
+			          md-item-text="item.display"
+			          placeholder="What is your favorite US state?">
+			        <span md-highlight-text="searchText" md-highlight-flags="^i">{{item.display}}</span>
+			      </md-autocomplete>
+			      <br/>
+			    </form>
+			  </md-content>
 			</div>
 			<div class="col-md-8">
 				<div id="stateContainer">
 					<div id="tooltip"></div>
-					<svg style="width:900px" height="600" id="statesvg"></svg>
+
 				</div>
 			</div>
 		</div>
