@@ -114,6 +114,32 @@ CUSTOM_FIPS = {
 }
 
 
+def get_clean_zip(dirty_zip):
+    """
+    Given a variable-length zip code, return a best-effort representation of it as a 5 digit zip code
+
+    Example:
+    get_clean_zip("123") = "00123"
+    get_clean_zip("123456789") = "12345"
+
+    NOTE: Long zip codes passed in without leading zeroes WILL cause errors.
+    Reading data from a file should use a string type so leading zero information is not lost.
+    :param dirty_zip: Zip code to clean
+    :return: Clean 5-digit zip code
+    """
+    clean_zip = str(dirty_zip)
+    if len(clean_zip) == 0:
+        return "-00001"
+    size = len(clean_zip)
+    if size < SHORT_ZIP_CODE_LENGTH:
+        mask_size = SHORT_ZIP_CODE_LENGTH - size
+        mask = "0" * mask_size
+        clean_zip = mask + clean_zip
+    elif size > SHORT_ZIP_CODE_LENGTH:
+        clean_zip = clean_zip[:SHORT_ZIP_CODE_LENGTH]
+    return clean_zip
+
+
 def _get_state_name(state_abbreviation):
     if state_abbreviation in _STATE_ABBREVIATIONS:
         return _STATE_ABBREVIATIONS[state_abbreviation]
