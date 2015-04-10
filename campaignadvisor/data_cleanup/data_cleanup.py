@@ -15,9 +15,18 @@ NO_COUNTY_NAME = "NO_COUNTY_NAME"
 # Replacement text for when there is no state name
 NO_STATE_NAME = "NO_STATE_NAME"
 # Replacement text for when there is no fips code
-NO_FIPS_CODE = "0"
-# Extraneous words in the zip code file
-ZIP_STOP_WORDS = ['County', 'City']
+NO_FIPS_CODE = "-1"
+# Extraneous words to be removed from county names
+# NOTE: stop words that are substrings of other stop words must appear AFTER them in this list.
+COUNTY_STOP_WORDS = [
+    'city and municipality of',
+    'city of',
+    'municipality of',
+    'census area',
+    'borough',
+    'city',
+    'county',
+]
 # Length of zip codes provided in zip code file
 SHORT_ZIP_CODE_LENGTH = 5
 # Length of zip codes that can occur in contributions
@@ -91,8 +100,44 @@ _STATE_ABBREVIATIONS = states = {
     'WA': 'Washington',
     'WI': 'Wisconsin',
     'WV': 'West Virginia',
-    'WY': 'Wyoming'
+    'WY': 'Wyoming',
+    # Military state codes
+    'AA': 'Armed Forces Americas',
+    'AE': 'Armed Forces Africa, Canada, Europe, Middle East',
+    'AP': 'Armed Forces Pacific'
 }
+
+CUSTOM_FIPS = {
+    'armed forces americas': "-2",
+    'armed forces africa, canada, europe, middle east': "-3",
+    'armed forces pacific': "-4"
+}
+
+
+def get_clean_zip(dirty_zip):
+    """
+    Given a variable-length zip code, return a best-effort representation of it as a 5 digit zip code
+
+    Example:
+    get_clean_zip("123") = "00123"
+    get_clean_zip("123456789") = "12345"
+
+    NOTE: Long zip codes passed in without leading zeroes WILL cause errors.
+    Reading data from a file should use a string type so leading zero information is not lost.
+    :param dirty_zip: Zip code to clean
+    :return: Clean 5-digit zip code
+    """
+    clean_zip = str(dirty_zip)
+    if len(clean_zip) == 0:
+        return "-00001"
+    size = len(clean_zip)
+    if size < SHORT_ZIP_CODE_LENGTH:
+        mask_size = SHORT_ZIP_CODE_LENGTH - size
+        mask = "0" * mask_size
+        clean_zip = mask + clean_zip
+    elif size > SHORT_ZIP_CODE_LENGTH:
+        clean_zip = clean_zip[:SHORT_ZIP_CODE_LENGTH]
+    return clean_zip
 
 
 def _get_state_name(state_abbreviation):
@@ -100,6 +145,19 @@ def _get_state_name(state_abbreviation):
         return _STATE_ABBREVIATIONS[state_abbreviation]
     else:
         return NO_STATE_NAME
+
+
+# TODO: add whitelist when should actually read Kansas City (if that were a real county)
+def _get_clean_county_name(dirty_county_name):
+    clean_county_name = dirty_county_name.lower()
+    for stop_word in COUNTY_STOP_WORDS:
+        if stop_word in clean_county_name:
+            clean_county_name = clean_county_name.replace(stop_word, "").strip()
+    return clean_county_name
+
+
+def _get_clean_state_name(dirty_state_name):
+    return dirty_state_name.lower()
 
 
 class FIPSMapper:
@@ -139,19 +197,15 @@ def _get_zip_codes_map():
             zipcode = str(row['zip'])
             state_abbreviation = str(row['state'])
             state_name = _get_state_name(state_abbreviation)
-            county = str(row['county'])
-            # Do not want empty strings in the map
-            # Cannot split no length strings
+            # Put to lower case for consistency
+            state_name = _get_clean_state_name(state_name)
+            # Throw away city, borough, county, etc change to lower case
+            county = _get_clean_county_name(str(row['county']))
             if len(county) == 0:
-                continue
-            """
-            split = county.split()
-            # TODO: will cause errors when city is valid.
-            # TODO: add city whitelist, perhaps don't use it at all
-            # Throw out stop words at the end of the county name
-            if split[-1] in ZIP_STOP_WORDS:
-                county = " ".join(split[:-1]).strip()
-            """
+                county = NO_COUNTY_NAME
+
+            if len(state_name) == 0:
+                state_name = NO_STATE_NAME
             state_county = state_name, county
             zip_codes[zipcode] = state_county
     return zip_codes
@@ -163,16 +217,11 @@ def get_state_county_from_zip_code(zip_code):
     :param zip_code: A zip code of length 5 or 9
     :return: The zip code's corresponding (state's name, county's name)
     """
-    zip_codes_map = _get_the_zip_code_map()
-    # Accept any type of zip code representation (numpy.float64, int, str...etc)
-    # Throws away trailing decimals that are unwanted
-    try:
-        zip_code = str(int(zip_code))
-    except ValueError:
+    if type(zip_code) != type(" "):
         return NO_STATE_NAME, NO_COUNTY_NAME
-
+    zip_codes_map = _get_the_zip_code_map()
     # Convert long zip codes to short
-    if len(zip_code) == LONG_ZIP_CODE_LENGTH:
+    if len(zip_code) > SHORT_ZIP_CODE_LENGTH:
         zip_code = zip_code[:SHORT_ZIP_CODE_LENGTH]
     if zip_code in zip_codes_map:
         return zip_codes_map[zip_code]
@@ -184,6 +233,7 @@ FIPS_FIELD_NAMES = ["state_abbreviation", "state_fips", "county_fips", "county_n
 
 
 # TODO: standardize what county names will be
+# TODO: add us territories to have custom made fips codes
 def _get_fips_mapper():
     national_counties_resource = campaignadvisor.resources.get_resource("national_counties.csv")
     fips_to_state_county = {}
@@ -196,9 +246,11 @@ def _get_fips_mapper():
             # Look out for types, they're different everywhere and need to be consistent
             state_abbreviation = str(row["state_abbreviation"])
             state_name = _get_state_name(state_abbreviation)
+            state_name = _get_clean_state_name(state_name)
             state_fips = str(row["state_fips"])
             county_fips = state_fips + str(row["county_fips"])
             county_name = str(row["county_name"])
+            county_name = _get_clean_county_name(county_name)
 
             state_county = (state_name, county_name)
 
@@ -219,6 +271,9 @@ def _get_fips_mapper():
                 # Build state_to_fips:
                 if state_name not in state_to_fips:
                     state_to_fips[state_name] = state_fips
+        for key in CUSTOM_FIPS:
+            val = CUSTOM_FIPS[key]
+            state_to_fips[key] = val
         return FIPSMapper(fips_to_state_county, fips_to_state, state_county_to_fips, state_to_fips)
 
 
@@ -227,15 +282,21 @@ def get_state_county_from_fips(fips_code):
     Given a county's fips code , return a tuple of its state's properly capitalized name followed by
     its properly capitalized name.
 
-    NOTE: The formatting of the name returned is currently "Alger County" rather than "Alger"
+    NOTE: The formatting of the name returned is currently "alger" rather than "Alger County"
     This is subject to change.
 
+    NOTE: If no county exists but a state can be discerned, the (state_name, NO_COUNTY_NAME) will be returned
+
     :param fips_code: A county's fips code
-    :return: The tuple: (properly capitalized state name, properly capitalized county name)
+    :return: The tuple: (lowercase state name, lowercase county name)
     """
     fips_to_state_county = _get_the_fips_mapper().fips_to_state_county
+    fips_to_state = _get_the_fips_mapper().fips_to_state
+    state_fips_code = fips_code[:2]
     if fips_code in fips_to_state_county:
         return fips_to_state_county[fips_code]
+    elif state_fips_code in fips_to_state:
+        return fips_to_state[state_fips_code], NO_COUNTY_NAME
     else:
         return NO_STATE_NAME, NO_COUNTY_NAME
 
@@ -259,6 +320,7 @@ def get_state_from_fips(fips_code):
 def get_fips_from_state_county(state_county):
     """
     Get the fips code of a county in a given state
+    If state data is available but county data is not, the state fips code will be returned
 
     NOTE: This function expects input in the form "COUNTY_NAME + County"
     This implementation may vary
@@ -271,10 +333,16 @@ def get_fips_from_state_county(state_county):
     :return: The fips code of the desired city
     """
     # Convert to tuple in case was passed in as a list etc
-    state_county = state_county[0], state_county[1]
+    # Convert to lowercase to support lookup
+    state_name = _get_clean_state_name(state_county[0])
+    county_name = _get_clean_county_name(state_county[1])
+    state_county = state_name, county_name
     state_county_to_fips = _get_the_fips_mapper().state_county_to_fips
+    state_to_fips = _get_the_fips_mapper().state_to_fips
     if state_county in state_county_to_fips:
         return state_county_to_fips[state_county]
+    elif state_name in state_to_fips:
+        return state_to_fips[state_name]
     else:
         return NO_FIPS_CODE
 
@@ -285,11 +353,57 @@ def get_fips_from_state(state):
     :param state: The properly capitalized name of a state
     :return: The state's fips code
     """
+    # Lowercase for lookup
+    state = _get_clean_state_name(state)
     state_to_fips = _get_the_fips_mapper().state_to_fips
     if state in state_to_fips:
         return state_to_fips[state]
     else:
         return NO_FIPS_CODE
+
+
+def get_fips_from_zip_code(zip_code):
+    """
+    Return the county fips code of a zip code.
+    If no county is found, NO_FIPS_CODE is returned
+    WILL NOT return state fips code in any instance
+    Useful for pandas apply function
+
+    NOTE: Some zip codes fall under multiple counties.  Whichever one is listed in the
+    input data set will be used, no heuristic described here.
+
+    :param zip_code: Zip code to convert
+    :return: Corresponding county fips code
+    """
+
+    # IF not a string, return NO_FIPS_CODE
+    if type(zip_code) != type(" "):
+        return NO_FIPS_CODE
+
+    state_county = get_state_county_from_zip_code(zip_code)
+    fips_code = get_fips_from_state_county(state_county)
+    return fips_code
+
+
+def get_clean_fips(fips):
+    """
+    Given a FIPS code, ensure it is returned as a properly formatted FIPS code of length 5
+
+    Example:
+    get_clean_fips(123) = "00123"
+    get_clean_fips("0002") = "00002"
+    get_clean_fips("00001") = "00001
+
+    :param fips: The FIPS code to clean
+    :return: The 5-digit FIPS code as a string
+    """
+    as_string = str(fips)
+    size = len(as_string)
+    fips_length = 5
+    difference = fips_length - size
+    if difference > 0:
+        as_string = "0" * difference + as_string
+    return as_string
 
 
 def example_zip_to_county():
@@ -300,6 +414,33 @@ def example_zip_to_county():
     # NOTE: keyword argument is not optional. The apply method is just a little hanky
     # Full blown code smell, probably a better way.
     print contributions["contbr_zip"].apply(get_state_county_from_zip_code)
+
+
+def example_counts_by_fips():
+    """
+    Print out the distribution of counts of contributions from each fips code
+    -1 is no known data about the location (some are us territories which can easily have cursory support)
+    -2 through -4 are Military base codes
+    :return:
+    """
+    contributions_resource = campaignadvisor.resources.get_resource("contributions.csv")
+    contributions = pd.read_csv(contributions_resource.get_local_path(), dtype=str)
+    contributions['FIPS'] = contributions["contbr_zip"].apply(get_fips_from_zip_code)
+    print contributions.groupby('FIPS').size()
+
+
+def example_show_unknown_locations():
+    """
+    Print out the distribution of counts of contributions from each fips code
+    -1 is no known data about the location (some are us territories which can easily have cursory support)
+    -2 through -4 are Military base codes
+    :return:
+    """
+    contributions_resource = campaignadvisor.resources.get_resource("contributions.csv")
+    contributions = pd.read_csv(contributions_resource.get_local_path(), dtype=str)
+    contributions['FIPS'] = contributions["contbr_zip"].apply(get_fips_from_zip_code)
+
+    print contributions[contributions['FIPS'] == NO_FIPS_CODE][['FIPS', 'contbr_city', 'contbr_st', 'contbr_zip']]
 
 
 def debug():
@@ -319,5 +460,7 @@ def debug():
 
 
 if __name__ == "__main__":
-    debug()
-    example_zip_to_county()
+    #debug()
+    #example_zip_to_county()
+    #example_counts_by_fips()
+    example_show_unknown_locations()
