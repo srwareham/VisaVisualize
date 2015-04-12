@@ -129,4 +129,14 @@ body {
 }
 
 .autocompletedemoBasicUsage md-content {
-  min-height: 500px; }
+  min-height: 500px; 
+}
+
+.button-row {
+	padding-bottom: 40px;
+}
+
+.button-row > .md-raised {
+	font-family: RobotoDraft !important;
+	text-transform: none;
+}
