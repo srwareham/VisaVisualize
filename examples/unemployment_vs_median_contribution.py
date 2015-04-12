@@ -45,11 +45,16 @@ if __name__ == "__main__":
     that's it !
 
     """
+    # this should give the median value by clean fips
+    median_contributions = contributions_dataframe.groupby("clean_fips").median()
+    # this assigns the clean_fips column as the index (clean fips was made the index in the groupby step)
+    median_contributions['clean_fips'] = median_contributions.index
+    # reset the index to the row number to prevent confusion
+    median_contributions.index = range(len(median_contributions.index))
 
-    grouped = contributions_dataframe.groupby(['clean_fips'], as_index=False)
-    print grouped.describe()
 
-    median_contribution_by_county = grouped.median().reset_index()[['clean_fips', 'clean_contribution']]
+
+    median_contribution_by_county = median_contributions
 
     # Create new table where each row contains a county's median contribution amount, and its job statistics
     #median_contribution_by_county = contributions_dataframe.groupby('clean_fips')[['clean_fips', 'clean_contribution']].median()
@@ -63,14 +68,16 @@ if __name__ == "__main__":
     joined = pd.merge(median_contribution_by_county, jobs, on="clean_fips", sort=False, how="inner")
 
     # Count the number of contributions in each county
-    joined['ContributionsCount'] = contributions_dataframe.groupby('clean_fips').size()
+    contributions_size_series = contributions_dataframe.groupby('clean_fips').size()
+    contributions_size_dataframe = pd.DataFrame(contributions_size_series, columns=['contributions_count'])
+    contributions_size_dataframe['clean_fips'] = contributions_size_dataframe.index
+    joined = pd.merge(joined, contributions_size_dataframe, on="clean_fips", sort=False, how="inner")
 
     #Exclude count from FIPS code 0
     joined = joined[joined['clean_fips'] != 0]
 
     # Filter out counties with less than 100 contributions
-    joined['ContributionsCount'] = contributions_dataframe.groupby('clean_fips').size()
-    joined = joined[joined['ContributionsCount'] >= 100]
+    joined = joined[joined['contributions_count'] >= 100]
     
     # Plot scatter plot
     joined.plot(kind='scatter', x='UnempRate2012', y='clean_contribution')
