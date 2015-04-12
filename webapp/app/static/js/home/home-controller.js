@@ -10,26 +10,10 @@ angular.module('CampaignAdvisor')
 	// 	"</table></div>";
 	// }
 
-
-	//drawMap.drawCounties('#statesvg', countyLines);
-	//
-	//var self = this;
-    // list of `state` value/display objects
     $scope.states        = loadAll();
     $scope.selectedItem  = null;
     $scope.searchText    = null;
     $scope.querySearch   = querySearch;
-    $scope.simulateQuery = false;
-    $scope.isDisabled    = false;
-    $scope.selectedItemChange = selectedItemChange;
-    $scope.searchTextChange   = searchTextChange;
-    // ******************************
-    // Internal methods
-    // ******************************
-    /**
-     * Search for states... use $timeout to simulate
-     * remote dataservice call.
-     */
     function querySearch (query) {
       var results = query ? $scope.states.filter( createFilterFor(query) ) : [],
           deferred;
@@ -41,12 +25,14 @@ angular.module('CampaignAdvisor')
         return results;
       }
     }
-    function searchTextChange(text) {
-      $log.info('Text changed to ' + text);
+
+    $scope.zoomToState = function(state) {
+      drawMap.zoomToState(state.value);
     }
-    function selectedItemChange(item) {
-      $log.info('Item changed to ' + item);
-    }
+
+    $scope.mapZoomOut = function() {
+      drawMap.reset();
+    };
     /**
      * Build `states` list of key/value pairs
      */
