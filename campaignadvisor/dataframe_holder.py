@@ -118,6 +118,8 @@ def _create_jobs_vs_contributions():
 
 
 def _save_pickle(data, path):
+    if not os.path.exists(os.path.dirname(path)):
+        os.makedirs(os.path.dirname(path))
     with open(path, 'wb') as file_out:
         pickle.dump(data, file_out)
 
