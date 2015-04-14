@@ -63,8 +63,8 @@ target/
 *.csv
 *.xls
 
-# (Temporary?) Pickle files
-pickles/
+# (Temporary?) Serialized files
+serialized_data/
 
 # Include sources file always
 !sources.txt
