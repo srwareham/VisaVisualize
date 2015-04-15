@@ -89,6 +89,10 @@ resources_definitions = [
     Resource(
         "RuralAtlasData10.xls",
         "https://dl.dropboxusercontent.com/u/28056448/EverythingData/RuralAtlasData10.xls"
+    ),
+    Resource(
+        "2012_president_county_votes.csv",
+        "https://dl.dropboxusercontent.com/u/28056448/EverythingData/2012_president_county_votes.csv"
     )
 ]
 
