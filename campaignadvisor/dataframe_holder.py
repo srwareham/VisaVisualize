@@ -15,22 +15,34 @@ import pandas as pd
 
 import resources
 import data_cleanup.data_cleanup
+import data_cleanup.vote_holder
 
 PROJECT_ROOT_PATH = os.path.abspath(__file__ + "/../../")
 SERIALIZED_DATA_DIRECTORY = os.path.join(PROJECT_ROOT_PATH, "serialized_data")
 
+
 # TODO: limit visibility once know which should be public?
-JOBS_VS_CONTRIBUTIONS_SERIALIZED_NAME = "jobs_vs_contributions.pik"
-CONTRIBUTIONS_SERIALIZED_NAME = "contributions.pik"
+# Dataframe access names
+VOTES = "votes"
+JOBS = "jobs"
+CONTRIBUTIONS = "contributions"
+JOBS_VS_CONTRIBUTIONS = "jobs_vs_contributions"
+
+# Serialized version names
+VOTES_SERIALIZED_NAME = "votes.pik"
 JOBS_SERIALIZED_NAME = "jobs.pik"
+CONTRIBUTIONS_SERIALIZED_NAME = "contributions.pik"
+JOBS_VS_CONTRIBUTIONS_SERIALIZED_NAME = "jobs_vs_contributions.pik"
+
+
+# Resource names
 CONTRIBUTIONS_CSV = "contributions.csv"
 RURAL_ATLAS_DATA__XLS = "RuralAtlasData10.xls"
-JOBS_VS_CONTRIBUTIONS = "jobs_vs_contributions"
+
+# Predefined pandas column names
 CONTRIBUTION_ZIP = "contbr_zip"
 CONTRIBUTION_AMOUNT = "contb_receipt_amt"
 CLEAN_CONTRIBUTION = "clean_contribution"
-JOBS = "jobs"
-CONTRIBUTIONS = "contributions"
 CONTRIBUTIONS_COUNT = "contributions_count"
 CLEAN_FIPS = "clean_fips"
 CLEAN_ZIPS = "clean_zips"
@@ -139,7 +151,8 @@ def _get_data_frames():
         DataFrameWrapper(JOBS, "%s" % JOBS_SERIALIZED_NAME, _create_jobs),
         DataFrameWrapper(CONTRIBUTIONS, CONTRIBUTIONS_SERIALIZED_NAME, _create_contributions, use_pickle=False),
         DataFrameWrapper("%s" % JOBS_VS_CONTRIBUTIONS, JOBS_VS_CONTRIBUTIONS_SERIALIZED_NAME,
-                         _create_jobs_vs_contributions, use_pickle=True)
+                         _create_jobs_vs_contributions, use_pickle=True),
+        DataFrameWrapper("%s" % VOTES, "%s" % VOTES_SERIALIZED_NAME, data_cleanup.vote_holder.get_county_dataframe)
     ]
 
     dfs = {}
