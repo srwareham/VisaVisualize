@@ -3,13 +3,8 @@ angular.module('CampaignAdvisor')
   	function ($scope, countyLines, stateLines, drawMap, $timeout, $q, $log) {
   	drawMap.setGeojson(stateLines, countyLines);
 	drawMap.drawStates('#statesvg', {});
-
-	// , function (n, d){	/* function to create html content string in tooltip div. */
-	// 	return "<div style='background:white;border-radius:0px;width:300px;height:200px; padding:0px;border-radius:0px;'>" +
-	// 	"<h3 style='font-family:circular;color:black;padding:20px;width:100%'>"+n+"</h3><table>"+
-	// 	"</table></div>";
-	// }
-
+    $scope.mapState = 'Show';
+	   
     $scope.states        = loadAll();
     $scope.selectedItem  = null;
     $scope.searchText    = null;
@@ -60,4 +55,17 @@ angular.module('CampaignAdvisor')
         return (state.value.indexOf(lowercaseQuery) === 0);
       };
     }
+
+    $scope.drawAllCounties = function() {
+      if ($scope.mapState == 'Show') {
+        drawMap.drawAllCounties();
+        $scope.mapState = 'Hide';
+      } else {
+        drawMap.removeAllCounties();
+      }
+      
+    }
+
+    $scope.drawMap = drawMap;
+
   }]);
