@@ -146,8 +146,10 @@ def get_county_dataframe():
         winner_name = winner.first_name + " " + winner.last_name
         winner_party = winner.party
         data.append([fips_code, total_votes, gop_votes, dem_votes, winner_name, winner_party])
-    header = ["fips_code", "total_votes", "gop_votes", "dem_votes", "winner_name", "winner_party"]
+    header = ["clean_fips", "total_votes", "gop_votes", "dem_votes", "winner_name", "winner_party"]
     df = pd.DataFrame(data, columns=header)
+    df['percent_vote_gop'] = df['gop_votes'] / df['total_votes']
+    df['percent_vote_dem'] = df['dem_votes'] / df['total_votes']
     return df
 
 

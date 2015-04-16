@@ -166,6 +166,7 @@ def _create_veterans():
 def _create_county_statistics():
     jobs_vs_contributions = get_dataframe(JOBS_VS_CONTRIBUTIONS)
     people = get_dataframe(PEOPLE)
+    votes = get_dataframe(VOTES)
     # Avoid collisions because they get messy beyond 2 duplicates
     people.drop(['State', 'County', FIPS], inplace=True, axis=1)
     income = get_dataframe(INCOME)
@@ -177,6 +178,7 @@ def _create_county_statistics():
     county_statistics = pd.merge(jobs_vs_contributions, people, on=CLEAN_FIPS, sort=False, how="inner")
     county_statistics = pd.merge(county_statistics, income, on=CLEAN_FIPS, sort=False, how="inner")
     county_statistics = pd.merge(county_statistics, veterans, on=CLEAN_FIPS, sort=False, how="inner")
+    county_statistics = pd.merge(county_statistics, votes, on=CLEAN_FIPS, sort=False, how="inner")
     # Rename to lowercase
     county_statistics['state'] = county_statistics['State']
     county_statistics['county'] = county_statistics['County']
@@ -256,8 +258,7 @@ def debug():
     df = get_dataframe(COUNTY_STATISTICS)
     print len(df)
     print df.head()
-    for column in df.columns:
-        print column
+    print list(df.columns)
 
 
 if __name__ == "__main__":
