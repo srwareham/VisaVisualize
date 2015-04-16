@@ -12,7 +12,7 @@
 					<md-button class="md-raised" ng-click="mapZoomOut()">Zoom out</md-button>
 					<md-button class="md-raised" ng-click="drawAllCounties()">{{mapState}} all counties</md-button>
 				</div>
-				<div class="row">
+				<!-- <div class="row">
 					<md-content class="md-padding" layout="column">
 				    <form ng-submit="$event.preventDefault()" style="height:500px;" >
 				      <md-autocomplete
@@ -28,6 +28,12 @@
 				      <br/>
 				    </form>
 				  </md-content>
+				</div> -->
+				<div class="row">
+					<md-select ng-model="dataPoint" md-on-open="loadDataPoints()" style="min-width: 200px;">
+					<md-select-label>{{ dataPoint }}</md-select-label>
+						<md-option ng-value="dataPoint" ng-repeat="dataPoint in dataPoints">{{ dataPoint }}</md-option>
+					</md-select>
 				</div>
 				
 			</div>
