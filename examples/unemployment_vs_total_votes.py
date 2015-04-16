@@ -32,7 +32,7 @@ def main():
 
     county_statistics = pd.merge(votes, jobs, on='clean_fips', sort=False, how="inner")
     print_dataframe_fingerprint(county_statistics)
-    plot_columns(county_statistics, 'UnempRate2012', 'total_votes')
+    plot_columns(county_statistics, 'NumEmployed2010', 'PctEmpChange1012')
 
 
 if __name__ == "__main__":
