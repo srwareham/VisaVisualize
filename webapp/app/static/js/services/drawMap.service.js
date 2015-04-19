@@ -5,6 +5,7 @@ angular.module('CampaignAdvisor')
   var stateGeojson;
   var countiesByState;
   var stateGeojsonByState;
+  var stateCountyFips = {};
   var svg;
   var width = 600;
   var height = 900;
@@ -13,6 +14,15 @@ angular.module('CampaignAdvisor')
 	var states;	
 	var zoomedIn = false;
 
+	/**
+	 * Colors
+	 */
+	// function createColorScale = function() {
+
+	// };
+	function createColorScale(min, max, minimumColor, maximumColor) {
+		return d3.scale.linear().domain([min, max]).range([minimumColor, maximumColor]);
+	}
 	drawMapService.currentArea = 'United States of America';
 
 	drawMapService.setCurrentArea = function(area) {
@@ -44,24 +54,28 @@ angular.module('CampaignAdvisor')
 			var countyOutlines = svg.append("g")
 			.attr("id", stateId);
 			countyOutlines.selectAll("path")
-	  .data(stateFeatures.features)
-	    .enter().append("path")
+	  		.data(stateFeatures.features)
+	    	.enter().append("path")
 	    	.style('fill', 'black')
 	    	.style("fill", 'white')
 	    	.attr('class', colorCounty)
-				.style("stroke", '#777')
-	      .attr("d", path)
-	      .style("stroke-width", 1.5 / boundsObj.scale + "px")
-	      .attr("transform", "translate(" + boundsObj.translate + ")scale(" + boundsObj.scale + ")")
-	      .on('click', function() {
-	      	d3.selectAll('#' + stateId).remove();
-	      })
-	      .on('mouseover', function(d) {
-	      	var countyName = d.properties.NAME;
-	      	var label = state + ', ' + countyName;
-	      	drawMapService.setCurrentArea(label);
-	      	$rootScope.$apply();
-	      });
+			.style("stroke", '#777')
+			.attr("d", path)
+			.attr('id', function(d) {
+				var fipsCode = 'USA' + d.properties.STATE + d.properties.COUNTY;
+				return fipsCode;
+			})
+			.style("stroke-width", 1.5 / boundsObj.scale + "px")
+			.attr("transform", "translate(" + boundsObj.translate + ")scale(" + boundsObj.scale + ")")
+			.on('click', function() {
+				d3.selectAll('#' + stateId).remove();
+			})
+			.on('mouseover', function(d) {
+				var countyName = d.properties.NAME;
+				var label = state + ', ' + countyName;
+				drawMapService.setCurrentArea(label);
+				$rootScope.$apply();
+			});
 		}, timeoutValue);
 	  activeCountyDrawingId = stateId;
 	}
@@ -74,7 +88,7 @@ angular.module('CampaignAdvisor')
 		});
 	}
 
-	function drawC(d) {
+	function drawCountySimple(d) {
 		var state = stateFips[d.properties.STATE];
 		var stateFeatures = countiesByState[state];
 		var stateId = getStateId(state);
@@ -83,20 +97,25 @@ angular.module('CampaignAdvisor')
 		var countyOutlines = svg.append("g")
 		.attr("id", stateId);
 		countyOutlines.selectAll("path")
-  	.data(stateFeatures.features)
-    .enter().append("path")
+  		.data(stateFeatures.features)
+    	.enter().append("path")
+    	.attr('id', function(d) {
+			var fipsCode = 'USA' + d.properties.STATE + d.properties.COUNTY;
+			return fipsCode;
+		})
     	.style('fill', 'black')
     	.style("fill", 'white')
 			.style("stroke", '#777')
-      .attr("d", path)
-      .attr('class', colorCounty)
-      .on('mouseover', function(d) {
-	      	var countyName = d.properties.NAME;
-	      	var label = state + ', ' + countyName;
-	      	drawMapService.setCurrentArea(label);
-	      	$rootScope.$apply();
-	      });
+      	.attr("d", path)
+      	.on('mouseover', function(d) {
+			var countyName = d.properties.NAME;
+			var label = state + ', ' + countyName;
+			drawMapService.setCurrentArea(label);
+			$rootScope.$apply();
+		});
 	}
+
+
 
 	function colorCounty(d) {
 		return "q" + Math.floor((Math.random() * 9)) + "-9";
@@ -104,7 +123,7 @@ angular.module('CampaignAdvisor')
 
 	drawMapService.drawAllCounties = function() {
 		stateGeojson.features.forEach(function(d) {
-			drawC(d);
+			drawCountySimple(d);
 		});
 	};
 
@@ -136,26 +155,26 @@ angular.module('CampaignAdvisor')
 		counties = svg.append("g")
 		    .attr("id", "counties");
 		states.selectAll("path")
-      .data(stateGeojson.features)
-    .enter().append("path")
-    	.style("fill", 'white')
-			.style("stroke", '#777')
-			.attr('id', function(d) { 
-				return getStateId(stateFips[d.properties.STATE])  + '-state'; 
-			})
-      .attr("d", path)
-      .on("click", drawMapService.zoomToState)
-      .on("mouseover", function(d) {
-      	d3.select('#' + getStateId(stateFips[d.properties.STATE] + '-state'))
-      	.style('fill', '#ccc');
-      	drawMapService.setCurrentArea(d.properties.NAME);
-      	$rootScope.$apply();
-      })
-      .on("mouseout", function(d) {
-      	d3.select('#' + getStateId(stateFips[d.properties.STATE] + '-state'))
-      	.style('fill', 'white');
-      });
-    console.log('lala');
+		.data(stateGeojson.features)
+		.enter().append("path")
+		.style("fill", 'white')
+		.style("stroke", '#777')
+		.attr('id', function(d) { 
+			return getStateId(stateFips[d.properties.STATE])  + '-state'; 
+		})
+		.attr("d", path)
+		.on("click", drawMapService.zoomToState)
+		.on("mouseover", function(d) {
+			d3.select('#' + getStateId(stateFips[d.properties.STATE] + '-state'))
+			.style('fill', '#ccc');
+			drawMapService.setCurrentArea(d.properties.NAME);
+			$rootScope.$apply();
+		})
+		.on("mouseout", function(d) {
+			d3.select('#' + getStateId(stateFips[d.properties.STATE] + '-state'))
+			.style('fill', 'white');
+		});
+
 	};
 
 	var selectedArea = d3.select(null);
@@ -208,6 +227,11 @@ angular.module('CampaignAdvisor')
 			return data;
 		}, {});
 		countiesByState = countyGeojson.features.map(function(feature) {
+			var stateFips = feature.properties.STATE; 
+			if (!stateCountyFips[stateFips]) {
+				stateCountyFips[stateFips] = [];
+			}
+			stateCountyFips[stateFips].push(stateFips + feature.properties.COUNTY);
 			return {
 				state: feature.properties.STATE,
 				feature: feature
@@ -227,6 +251,7 @@ angular.module('CampaignAdvisor')
 		}, {});
 	};
 
+
 	drawMapService.zoomToState = function(state) {
 		zoomedIn= true;
 		selectedArea.classed("active", false);
@@ -240,6 +265,25 @@ angular.module('CampaignAdvisor')
 		selectedArea = d3.select('#' + id);
 		zoomToGeojson(geojson);
 		drawCounty(geojson);
+	};
+
+	drawMapService.visualizeDataForState = function(stateFips, countyData) {
+		var countyFips = stateCountyFips[stateFips];
+		var min = countyData.min;
+		var max = countyData.max;
+		var colorScale = createColorScale(countyData.min, countyData.max, d3.rgb('white'), d3.rgb('blue').brighter(100));
+		countyData = countyData.countyData;
+		if (!countyFips) return;
+		countyFips.forEach(function(fips) {
+			d3.select('#USA' + fips)
+				.style('fill', function() {
+					if (countyData && countyData[fips]) {
+						return colorScale(countyData[fips]);
+					} else {	
+						return 'black';
+					}
+				});
+		});
 	};
 
   return drawMapService;
