@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from context import campaignadvisor
 from sklearn import preprocessing
 
 
@@ -49,7 +50,6 @@ class Normalizer():
 
 
 def main():
-    """
     jobs_name = campaignadvisor.dataframe_holder.JOBS
     votes_name = campaignadvisor.dataframe_holder.VOTES
     jobs = campaignadvisor.dataframe_holder.get_dataframe(jobs_name)
@@ -58,20 +58,23 @@ def main():
 
     # country statistics dataframe
     df = pd.merge(votes, jobs, on='clean_fips', sort=False, how="inner")
-    """
-
+    
     # example dataframe
-    df = pd.DataFrame({'a': [2, 4, 5], 'b': [3, 9, 4]}, dtype=np.float)
-    print(df)
+    # df = pd.DataFrame({'a': [2, 4, 5], 'b': [3, 9, 4]}, dtype=np.float)
+    # print(df)
 
-    # get feature list
-    features_to_scale = list(df.columns)
+    # get feature list from county statistics
+    features_to_drop = ['clean_fps', 'fips_code', 'FIPS', 'State', 'County', 'winner_name', 'winner_party']
+    # keywords_to_drop = ['Pct', 'Rate']
+    features_to_scale = list()
     for feature in df.columns:
-        if feature == 'clean_fps' or feature == 'fips_code':
-            features_to_scale.remove(feature)
+        feature_element = df[feature][0]
+        if type(feature_element) != type(str()) and feature not in features_to_drop:
+            if 'Pct' not in feature and 'Rate' not in feature:
+                features_to_scale.append(feature)
 
     # instantiate Normalizer object with given algorithm
-    df_scaled = Normalizer(df, alg='minmax')
+    df_scaled = Normalizer(df, alg='std')
 
     # normalize only features to be scaled
     for feature in features_to_scale:
