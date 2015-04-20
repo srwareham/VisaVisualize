@@ -16,7 +16,7 @@ def open_pickle(path):
 	with open(path, 'rb') as pickle_file:
 		return pickle.load(pickle_file)
 
-county_statistics = open_pickle('county_statistics.pik')
+county_statistics = open_pickle('people_indexed.pik')
 @app.route('/')
 
 def root():
