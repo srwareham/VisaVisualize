@@ -14,10 +14,9 @@ class Normalizer():
 	output: Series
 	"""
 
-	def __init__(self, df, feature, alg):
+	def __init__(self, df, alg):
 		self.df = df
 		self.alg = alg
-		self.feature = feature
 		# algorithm types =
 		# 'minmax' is rescaling,
 		# 'std' is standardization,
