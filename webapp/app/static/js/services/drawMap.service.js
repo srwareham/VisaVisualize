@@ -5,6 +5,7 @@ angular.module('CampaignAdvisor')
   var stateGeojson;
   var countiesByState;
   var stateGeojsonByState;
+  var currentData;
   var stateCountyFips = {};
   var svg;
   var width = 600;
@@ -58,7 +59,6 @@ angular.module('CampaignAdvisor')
 	    	.enter().append("path")
 	    	.style('fill', 'black')
 	    	.style("fill", 'white')
-	    	.attr('class', colorCounty)
 			.style("stroke", '#777')
 			.attr("d", path)
 			.attr('id', function(d) {
@@ -73,10 +73,17 @@ angular.module('CampaignAdvisor')
 			.on('mouseover', function(d) {
 				var countyName = d.properties.NAME;
 				var label = state + ', ' + countyName;
+				var dataForFips = getDataFromFips(d.properties.STATE + d.properties.COUNTY);
+				label = dataForFips ? label + ' - ' + dataForFips : label;
 				drawMapService.setCurrentArea(label);
 				$rootScope.$apply();
 			});
+			if (currentData) {
+				console.log(d.properties.STATE);
+				drawMapService.visualizeDataForState(d.properties.STATE, currentData);
+			}
 		}, timeoutValue);
+
 	  activeCountyDrawingId = stateId;
 	}
 
@@ -110,9 +117,18 @@ angular.module('CampaignAdvisor')
       	.on('mouseover', function(d) {
 			var countyName = d.properties.NAME;
 			var label = state + ', ' + countyName;
+			var dataForFips = getDataFromFips(d.properties.STATE + d.properties.COUNTY);
+			label = dataForFips ? label + ' - ' + dataForFips : label;
 			drawMapService.setCurrentArea(label);
 			$rootScope.$apply();
 		});
+	}
+
+	function getDataFromFips(fips) {
+		if (currentData && currentData[fips]) {
+			return currentData[fips];
+		}
+		return '';
 	}
 
 
@@ -273,6 +289,7 @@ angular.module('CampaignAdvisor')
 		var max = countyData.max;
 		var colorScale = createColorScale(countyData.min, countyData.max, d3.rgb('white'), d3.rgb('blue').brighter(100));
 		countyData = countyData.countyData;
+		currentData = countyData;
 		if (!countyFips) return;
 		countyFips.forEach(function(fips) {
 			d3.select('#USA' + fips)

@@ -64,9 +64,10 @@ angular.module('CampaignAdvisor')
         $scope.mapState = 'Hide';
       } else {
         drawMap.removeAllCounties();
+        $scope.mapState = 'Show';
       }
     }
-    $scope.drawAllCounties();
+    //$scope.drawAllCounties();
 
     $scope.loadDataPoints = function() {
     // Use timeout to simulate a 650ms request.

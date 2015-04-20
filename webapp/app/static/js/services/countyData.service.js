@@ -10,7 +10,7 @@ angular.module('CampaignAdvisor')
       	url: '/api/getCountyStatisticsColumns'
       }
     });
-    var PERCENTAGE_DATA = 'Pct';
+    var PERCENTAGE_DATA = ['percent', 'Pct', 'pct', 'percentage'];
   	countyDataService.getData = function(columnName) {
   		return countyStatisticsResource.getCountyStatistics({ data_column: columnName}).$promise.then(function (countyData) {
   			return countyDataService.normalizeData(columnName, countyData);
@@ -20,7 +20,9 @@ angular.module('CampaignAdvisor')
   		var min = countyData.min_value;
   		var max = countyData.max_value;
   		countyData = countyData.county_data;
-  		var isPct = columnName.indexOf(PERCENTAGE_DATA) !== -1;
+  		var isPct = PERCENTAGE_DATA.some(function(str) {
+        return columnName.indexOf(str) != -1;
+      });
   		var dataArray = Object.keys(countyData).map(function(countyDataKey) {
   			var dataPoint = [];
   			dataPoint[0] = countyDataKey;
