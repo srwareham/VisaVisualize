@@ -44,7 +44,7 @@ class Normalizer():
 	def normalize_std(self, feature):
 		feature_zscore = feature + '_zscore'
 		self.df[featire_zscore] = (self.df[feature] - self.df[feature].mean())/self.df[feature].std(ddof=0)
-		# return self.df
+		# return self.df[feature_zscore]
 
 def main():
 	"""
@@ -54,7 +54,8 @@ def main():
     votes = campaignadvisor.dataframe_holder.get_dataframe(votes_name)
     votes['clean_fips'] = votes['fips_code']
 
-    county_statistics = pd.merge(votes, jobs, on='clean_fips', sort=False, how="inner")
+	# country statistics dataframe
+    df = pd.merge(votes, jobs, on='clean_fips', sort=False, how="inner")
 	"""
 
 	# example dataframe
@@ -74,7 +75,7 @@ def main():
 	for feature in features_to_scale:
 		df_scaled.normalize(feature)
 
-	# testing in array form
+	# testing
 	print df_scaled.df
 	print test_normalize(df, features_to_scale, alg='minmax')
 
