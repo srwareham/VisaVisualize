@@ -179,6 +179,10 @@ def _create_county_statistics():
     county_statistics = pd.merge(county_statistics, income, on=CLEAN_FIPS, sort=False, how="inner")
     county_statistics = pd.merge(county_statistics, veterans, on=CLEAN_FIPS, sort=False, how="inner")
     county_statistics = pd.merge(county_statistics, votes, on=CLEAN_FIPS, sort=False, how="inner")
+
+    #Add in contributions_per_capita
+    county_statistics['contributions_per_capita'] = county_statistics['contributions_count'] * 1.0 / county_statistics['TotalPopEst2012']
+
     # Rename to lowercase
     county_statistics['state'] = county_statistics['State']
     county_statistics['county'] = county_statistics['County']
