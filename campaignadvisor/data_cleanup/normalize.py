@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from context import campaignadvisor
 from sklearn import preprocessing
+import cpickle as pickle
 
 
 class Normalizer():
@@ -49,6 +50,24 @@ class Normalizer():
             self.normalize_std(feature)
 
 
+def test_normalize(df, features, alg):
+    if alg == 'minmax':
+        scale = preprocessing.MinMaxScaler().fit(df[features])
+    elif alg == 'std':
+        scale = preprocessing.StandardScaler().fit(df[features])
+    df_scaled = scale.transform(df[features])
+    return df_scaled
+
+def _save_pickle(data, path):
+    if not os.path.exists(os.path.dirname(path)):
+        os.makedirs(os.path.dirname(path))
+    with open(path, 'wb') as file_out:
+        pickle.dump(data, file_out)
+
+def _load_pickle(path):
+    with open(path, 'rb') as file_in:
+        return pickle.load(file_in)
+
 def main():
     jobs_name = campaignadvisor.dataframe_holder.JOBS
     votes_name = campaignadvisor.dataframe_holder.VOTES
@@ -83,16 +102,6 @@ def main():
     # testing
     print df_scaled.df
     print test_normalize(df, features_to_scale, alg='minmax')
-
-
-def test_normalize(df, features, alg):
-    if alg == 'minmax':
-        scale = preprocessing.MinMaxScaler().fit(df[features])
-    elif alg == 'std':
-        scale = preprocessing.StandardScaler().fit(df[features])
-    df_scaled = scale.transform(df[features])
-    return df_scaled
-
 
 if __name__ == "__main__":
     main()
