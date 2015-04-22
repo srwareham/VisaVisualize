@@ -20,6 +20,7 @@ angular.module('CampaignAdvisor')
   		var min = countyData.min_value;
   		var max = countyData.max_value;
   		countyData = countyData.county_data;
+      console.log(countyData);
   		var isPct = PERCENTAGE_DATA.some(function(str) {
         return columnName.indexOf(str) != -1;
       });
@@ -34,10 +35,11 @@ angular.module('CampaignAdvisor')
   			return { countyData: transformToObj(dataArray), min: min, max: max} ;
   		} else {
   			var range = max - min;
-  			dataArray.map(function(d) {
+  			dataArray = dataArray.map(function(d) {
   				d[1] = (d[1] - min) / range * 100;
   				return d;
   			});
+        console.log(dataArray);
   			return { countyData: transformToObj(dataArray), min: min, max: max} ;
   		}
   	};

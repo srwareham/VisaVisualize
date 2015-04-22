@@ -6,8 +6,6 @@ body {
 }
 
 body > .container {
-  	margin-left: 100px;
-  	margin-right: 100px;
   	max-width: 100%;
 }
 
@@ -94,10 +92,7 @@ button.select-button {
 }
 
 div.title {
-	  text-align: right;
-  padding: 40px;
-  font-size: 40px;
-  font-family: circular;
+  text-align: center;
 }
 @font-face { font-family: Circular; src: url('../fonts/CircularStd-Bold.otf'); }
 
@@ -142,17 +137,11 @@ body {
 }
 
 .state-header {
-	font-family: Circular;
-	font-size: 40px;
+	font-family: RobotoDraft;
+	font-size: 30px;
 	text-align: center;
 }
 
-.q0-9{fill:rgb(247,251,255) !important}
-.q1-9{fill:rgb(222,235,247) !important}
-.q2-9{fill:rgb(198,219,239) !important}
-.q3-9{fill:rgb(158,202,225) !important}
-.q4-9{fill:rgb(107,174,214) !important}
-.q5-9{fill:rgb(66,146,198) !important}
-.q6-9{fill:rgb(33,113,181) !important}
-.q7-9{fill:rgb(8,81,156) !important}
-.q8-9{fill:rgb(8,48,107) !important}
+.md-select {
+	margin-top: 0px !important; 
+}

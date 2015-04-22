@@ -20,5 +20,9 @@ angular.module('CampaignAdvisor', ['ngResource', 'ngRoute', 'ui.bootstrap', 'ui.
           }]
     	  }
     })
+    .when('/topcontributors', {
+      templateUrl: 'views/home/topcontributors.html', 
+      controller: 'ContributorsController'
+    })
     .otherwise({redirectTo: '/'});
   }]);

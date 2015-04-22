@@ -1,46 +1,47 @@
 <div class="container-fluid">
-	<div class="row" style="text-align:center;">
-		<span class="state-header">{{ drawMap.currentArea }}</span>
-	</div>
-</div>
-<div class="container-fluid">
 	<div class="row">
 		<div class="row main-row">
-			<div class="col-md-4">
+			<div class="col-md-6">
+				<div id="scatter-animated">
+				</div>
 				
-				<div class="row button-row">
-					<md-button class="md-raised" ng-click="mapZoomOut()">Zoom out</md-button>
-					<md-button class="md-raised" ng-click="drawAllCounties()">{{mapState}} all counties</md-button>
+				<div class="row title">
+					<span class="state-header">{{ drawMap.currentArea[2] }}</span>
 				</div>
-				<!-- <div class="row">
-					<md-content class="md-padding" layout="column">
-				    <form ng-submit="$event.preventDefault()" style="height:500px;" >
-				      <md-autocomplete
-				          md-no-cache="noCache"
-				          md-selected-item="selectedItem"
-				          md-search-text="searchText"
-				          md-selected-item-change="zoomToState(item)"
-				          md-items="item in querySearch(searchText)"
-				          md-item-text="item.display"
-				          placeholder="Choose a state">
-				        <span md-highlight-text="searchText" md-highlight-flags="^i">{{item.display}}</span>
-				      </md-autocomplete>
-				      <br/>
-				    </form>
-				  </md-content>
-				</div> -->
 				<div class="row">
-					<md-select ng-model="dataPoint" md-on-open="loadDataPoints()" style="min-width: 200px;">
-					<md-select-label>{{ dataPoint }}</md-select-label>
-						<md-option ng-value="dataPoint" ng-repeat="dataPoint in dataPoints">{{ dataPoint }}</md-option>
-					</md-select>
+					<div class="col-md-6 button-row">
+						<md-button class="md-raised" ng-click="mapZoomOut(2)">Zoom out</md-button>
+						<md-button class="md-raised" ng-click="drawAllCounties(2)">{{mapState[2].state}} all counties</md-button>
+					</div>
+					<div class="col-md-6">
+						<md-select ng-model="dataPoint2" md-on-open="loadDataPoints()" style="min-width: 200px;">
+						<md-select-label>{{ dataPoint2 }}</md-select-label>
+							<md-option ng-value="dataPoint" ng-repeat="dataPoint in dataPoints">{{ dataPoint }}</md-option>
+						</md-select>
+					</div>
 				</div>
+				<div id="stateContainer2">
+				</div>
+				
 				
 			</div>
-			<div class="col-md-8">
-				<div id="stateContainer">
-					<div id="tooltip"></div>
-
+			<div class="col-md-6">
+				<div class="row title">
+					<span class="state-header">{{ drawMap.currentArea[1] }}</span>
+				</div>
+				<div class="row">
+					<div class="col-md-6 button-row">
+						<md-button class="md-raised" ng-click="mapZoomOut(1)">Zoom out</md-button>
+						<md-button class="md-raised" ng-click="drawAllCounties(1)">{{mapState[1].state}} all counties</md-button>
+					</div>
+					<div class="col-md-6">
+						<md-select ng-model="dataPoint" md-on-open="loadDataPoints()" style="min-width: 200px;">
+						<md-select-label>{{ dataPoint }}</md-select-label>
+							<md-option ng-value="dataPoint" ng-repeat="dataPoint in dataPoints">{{ dataPoint }}</md-option>
+						</md-select>
+					</div>
+				</div>
+				<div id="stateContainer1">
 				</div>
 			</div>
 		</div>

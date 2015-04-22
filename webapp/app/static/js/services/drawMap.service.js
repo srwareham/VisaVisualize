@@ -5,15 +5,22 @@ angular.module('CampaignAdvisor')
   var stateGeojson;
   var countiesByState;
   var stateGeojsonByState;
-  var currentData;
+  var currentData = {};
   var stateCountyFips = {};
-  var svg;
-  var width = 600;
-  var height = 900;
-  var path = d3.geo.path();
-  var counties;
-	var states;	
-	var zoomedIn = false;
+  var svgMap = {};
+  var width = 533.33;
+  var height = 800;
+  var projection = d3.geo.albersUsa()
+    .scale(width)
+    .translate([width / 2, height / 2]);
+  var path = d3.geo.path(projection);
+  var counties = {};
+	var states = {};
+	var zoomedIn = {
+		1: false,
+		2: false
+	};
+	var BASIC_DESCRIPTION = 'United States of America';
 
 	/**
 	 * Colors
@@ -24,14 +31,14 @@ angular.module('CampaignAdvisor')
 	function createColorScale(min, max, minimumColor, maximumColor) {
 		return d3.scale.linear().domain([min, max]).range([minimumColor, maximumColor]);
 	}
-	drawMapService.currentArea = 'United States of America';
+	drawMapService.currentArea =  {}
 
-	drawMapService.setCurrentArea = function(area) {
-		drawMapService.currentArea = area;
+	drawMapService.setCurrentArea = function(area, mapNumber) {
+		drawMapService.currentArea[mapNumber] = area;
 	}
 
-	drawMapService.getCurrentArea = function() {
-		return drawMapService.currentArea;
+	drawMapService.getCurrentArea = function(mapNumber) {
+		return drawMapService.currentArea[mapNumber];
 	}
 	function getStateId(stateName) {
 		if (stateName) {
@@ -40,20 +47,21 @@ angular.module('CampaignAdvisor')
 			return "undefined";
 		}
 	}
-	var activeCountyDrawingId;
-	function drawCounty(d) {
-		if (!zoomedIn) return;
-		if (activeCountyDrawingId) {
-			d3.selectAll('#' + activeCountyDrawingId).remove();
+	var activeCountyDrawingId = {};
+	function drawCounty(d, mapNumber) {
+		if (!zoomedIn[mapNumber]) return;
+		if (activeCountyDrawingId[mapNumber]) {
+			d3.selectAll('#' + activeCountyDrawingId[mapNumber]).remove();
 		}
 		var state = stateFips[d.properties.STATE];
 		var stateFeatures = countiesByState[state];
 		var stateId = getStateId(state);
 		var boundsObj = getBoundsObj(d);
 		var timeoutValue = 700;
+		var svg = svgMap[mapNumber];
 		$timeout(function() {
 			var countyOutlines = svg.append("g")
-			.attr("id", stateId);
+			.attr("id", stateId + mapNumber);
 			countyOutlines.selectAll("path")
 	  		.data(stateFeatures.features)
 	    	.enter().append("path")
@@ -62,7 +70,7 @@ angular.module('CampaignAdvisor')
 			.style("stroke", '#777')
 			.attr("d", path)
 			.attr('id', function(d) {
-				var fipsCode = 'USA' + d.properties.STATE + d.properties.COUNTY;
+				var fipsCode = 'USA' + mapNumber + d.properties.STATE + d.properties.COUNTY;
 				return fipsCode;
 			})
 			.style("stroke-width", 1.5 / boundsObj.scale + "px")
@@ -74,40 +82,53 @@ angular.module('CampaignAdvisor')
 				var countyName = d.properties.NAME;
 				var label = state + ', ' + countyName;
 				var dataForFips = getDataFromFips(d.properties.STATE + d.properties.COUNTY);
-				label = dataForFips ? label + ' - ' + dataForFips : label;
-				drawMapService.setCurrentArea(label);
+				label = dataForFips ? label + ': ' + dataForFips : label;
+
+				drawMapService.setCurrentArea(label, mapNumber);
+				var fipsCode = 'USA' + d.properties.STATE + d.properties.COUNTY;
+				//d3.select('#' + fipsCode).
+				//style('fill', '#ccc');
 				$rootScope.$apply();
+			})
+			.on('mouseout', function(d) {
+				var fipsCode = 'USA' + d.properties.STATE + d.properties.COUNTY;
+				// d3.select('#' + fipsCode).
+				// style('fill', '#fff');
 			});
-			if (currentData) {
-				console.log(d.properties.STATE);
-				drawMapService.visualizeDataForState(d.properties.STATE, currentData);
+			if (currentData[mapNumber]) {
+				drawMapService.visualizeDataForState(d.properties.STATE, mapNumber);
 			}
 		}, timeoutValue);
 
-	  activeCountyDrawingId = stateId;
+	  activeCountyDrawingId[mapNumber] = stateId + mapNumber;
 	}
 
-	drawMapService.removeAllCounties = function() {
+	drawMapService.setCurrentData = function(_data, mapNumber) {
+		currentData[mapNumber] = _data;
+	}
+
+	drawMapService.removeAllCounties = function(mapNumber) {
 		stateGeojson.features.forEach(function(d) {
 			var state = stateFips[d.properties.STATE];
 			var stateId = getStateId(state);
-			d3.selectAll('#' + stateId).remove();
+			d3.selectAll('#' + stateId + mapNumber).remove();
 		});
 	}
 
-	function drawCountySimple(d) {
+	function drawCountySimple(d, mapNumber) {
 		var state = stateFips[d.properties.STATE];
 		var stateFeatures = countiesByState[state];
 		var stateId = getStateId(state);
 		var boundsObj = getBoundsObj(d);
 		var timeoutValue = 700;
+		var svg = svgMap[mapNumber];
 		var countyOutlines = svg.append("g")
-		.attr("id", stateId);
+		.attr("id", stateId + mapNumber);
 		countyOutlines.selectAll("path")
   		.data(stateFeatures.features)
     	.enter().append("path")
     	.attr('id', function(d) {
-			var fipsCode = 'USA' + d.properties.STATE + d.properties.COUNTY;
+			var fipsCode = 'USA' + mapNumber + d.properties.STATE + d.properties.COUNTY;
 			return fipsCode;
 		})
     	.style('fill', 'black')
@@ -117,16 +138,18 @@ angular.module('CampaignAdvisor')
       	.on('mouseover', function(d) {
 			var countyName = d.properties.NAME;
 			var label = state + ', ' + countyName;
-			var dataForFips = getDataFromFips(d.properties.STATE + d.properties.COUNTY);
-			label = dataForFips ? label + ' - ' + dataForFips : label;
-			drawMapService.setCurrentArea(label);
+
+			var dataForFips = getDataFromFips(d.properties.STATE + d.properties.COUNTY, mapNumber);
+			label = dataForFips ? label + ': ' + dataForFips : label;
+			drawMapService.setCurrentArea(label, mapNumber);
 			$rootScope.$apply();
 		});
 	}
 
-	function getDataFromFips(fips) {
-		if (currentData && currentData[fips]) {
-			return currentData[fips];
+	function getDataFromFips(fips, mapNumber) {
+		if (!currentData[mapNumber]) return '';
+		if (currentData[mapNumber].countyData && currentData[mapNumber].countyData[fips]) {
+			return currentData[mapNumber].countyData[fips];
 		}
 		return '';
 	}
@@ -137,57 +160,55 @@ angular.module('CampaignAdvisor')
 		return "q" + Math.floor((Math.random() * 9)) + "-9";
 	}
 
-	drawMapService.drawAllCounties = function() {
+	drawMapService.drawAllCounties = function(mapNumber) {
 		stateGeojson.features.forEach(function(d) {
-			drawCountySimple(d);
+			drawCountySimple(d, mapNumber);
 		});
+		// if (currentData[mapNumber]) {
+		// 	var stateFips = ["10", "11", "12", "13", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "44", "45", "46", "47", "48", "49", "50", "51", "53", "54", "55", "56", "01", "02", "04", "05", "06", "08", "09"];
+
+		// }
 	};
 
 
 
-	drawMapService.drawStates = function(id, data, toolTip){	
-		function mouseOver(d){
-			d3.select("#tooltip").transition().duration(200).style("opacity", .9);      
-			var coordinates = d3.mouse(this);
-			d3.select("#tooltip").html(toolTip(d.n, data[d.id]))  
-			.style("left", coordinates[0] + "px")     
-			.style("top", coordinates[1] + "px");
-		}
-
-		function mouseOut(){
-			d3.select("#tooltip").transition().duration(500).style("opacity", 0);      
-		}
+	drawMapService.drawStates = function(mapNumber){	
 		
-		$("#statesvg").remove();
-
-		svg = d3.select("#stateContainer").append('svg')
+		svgMap[mapNumber] = d3.select("#stateContainer" + mapNumber).append('svg')
 					.attr('width', width + 'px')
 					.attr('height', height + 'px')
-					.attr('id', 'statesvg'); 
+					.attr('id', 'statesvg' + mapNumber); 
+		var svg = svgMap[mapNumber];
+
+		drawMapService.currentArea[mapNumber] = BASIC_DESCRIPTION;
 		// create a container for states
-		states = svg.append("g")
-		    .attr("id", "states");
+		states[mapNumber] = svg.append("g")
+		    .attr("id", "states")
+		    .attr('width', width)
+			.attr('height', height)
 		// create a container for counties
-		counties = svg.append("g")
+		counties[mapNumber] = svg.append("g")
 		    .attr("id", "counties");
-		states.selectAll("path")
+		states[mapNumber].selectAll("path")
 		.data(stateGeojson.features)
 		.enter().append("path")
 		.style("fill", 'white')
 		.style("stroke", '#777')
 		.attr('id', function(d) { 
-			return getStateId(stateFips[d.properties.STATE])  + '-state'; 
+			return getStateId(stateFips[d.properties.STATE])  + '-state' + mapNumber; 
 		})
+		.attr("width", width)
+        .attr("height", height)
 		.attr("d", path)
-		.on("click", drawMapService.zoomToState)
+		.on("click", drawMapService.zoomToState(mapNumber))
 		.on("mouseover", function(d) {
-			d3.select('#' + getStateId(stateFips[d.properties.STATE] + '-state'))
+			d3.select('#' + getStateId(stateFips[d.properties.STATE] + '-state') + mapNumber)
 			.style('fill', '#ccc');
-			drawMapService.setCurrentArea(d.properties.NAME);
+			drawMapService.setCurrentArea(d.properties.NAME, mapNumber);
 			$rootScope.$apply();
 		})
 		.on("mouseout", function(d) {
-			d3.select('#' + getStateId(stateFips[d.properties.STATE] + '-state'))
+			d3.select('#' + getStateId(stateFips[d.properties.STATE] + '-state') + mapNumber)
 			.style('fill', 'white');
 		});
 
@@ -213,23 +234,23 @@ angular.module('CampaignAdvisor')
 	 * @param  {[type]} d [description]
 	 * @return {[type]}   [description]
 	 */
-	function zoomToGeojson(d, physicalCall) {
+	function zoomToGeojson(d, mapNumber) {
 	  var boundsObj = getBoundsObj(d);
-	  states.transition()
+	  states[mapNumber].transition()
 	      .duration(750)
 	      .style("stroke-width", 1.5 / boundsObj.scale + "px")
 	      .attr("transform", "translate(" + boundsObj.translate + ")scale(" + boundsObj.scale + ")");
 	}
 
-	drawMapService.reset = function() {
-		zoomedIn = false;
-		if (activeCountyDrawingId) {
-			d3.selectAll('#' + activeCountyDrawingId).remove();
+	drawMapService.reset = function(mapNumber) {
+		zoomedIn[mapNumber] = false;
+		if (activeCountyDrawingId[mapNumber]) {
+			d3.selectAll('#' + activeCountyDrawingId[mapNumber]).remove();
 		}
 	  selectedArea.classed("active", false);
 	  selectedArea = d3.select(null);
 
-	  states.transition()
+	  states[mapNumber].transition()
       .duration(750)
       .style("stroke-width", "1px")
       .attr("transform", "");
@@ -268,31 +289,38 @@ angular.module('CampaignAdvisor')
 	};
 
 
-	drawMapService.zoomToState = function(state) {
-		zoomedIn= true;
-		selectedArea.classed("active", false);
-		var geojson;
-		if (!state.properties) {
-			geojson = stateGeojsonByState[state];
-		} else {
-			geojson = state;
+	drawMapService.zoomToState = function(mapNumber) {
+		return function(state) {
+			zoomedIn[mapNumber]= true;
+			selectedArea.classed("active", false);
+			var geojson;
+			if (!state.properties) {
+				geojson = stateGeojsonByState[state];
+			} else {
+				geojson = state;
+			}
+			var id = getStateId(stateFips[geojson.properties.STATE])  + '-state' + mapNumber;
+			selectedArea = d3.select('#' + id);
+			zoomToGeojson(geojson, mapNumber);
+			drawCounty(geojson, mapNumber);
 		}
-		var id = getStateId(stateFips[geojson.properties.STATE])  + '-state';
-		selectedArea = d3.select('#' + id);
-		zoomToGeojson(geojson);
-		drawCounty(geojson);
+		
 	};
 
-	drawMapService.visualizeDataForState = function(stateFips, countyData) {
+	drawMapService.visualizeDataForState = function(stateFips, mapNumber) {
+		if (!currentData[mapNumber]) {
+			return;
+		}
+		countyData = currentData[mapNumber];
 		var countyFips = stateCountyFips[stateFips];
 		var min = countyData.min;
 		var max = countyData.max;
 		var colorScale = createColorScale(countyData.min, countyData.max, d3.rgb('white'), d3.rgb('blue').brighter(100));
+		
 		countyData = countyData.countyData;
-		currentData = countyData;
 		if (!countyFips) return;
 		countyFips.forEach(function(fips) {
-			d3.select('#USA' + fips)
+			d3.select('#USA' + mapNumber + fips)
 				.style('fill', function() {
 					if (countyData && countyData[fips]) {
 						return colorScale(countyData[fips]);
@@ -302,6 +330,10 @@ angular.module('CampaignAdvisor')
 				});
 		});
 	};
+
+	
+	
+
 
   return drawMapService;
   }]);
