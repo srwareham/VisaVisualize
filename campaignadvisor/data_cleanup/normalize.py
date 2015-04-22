@@ -1,9 +1,9 @@
 import pandas as pd
 import numpy as np
+import os
+import cPickle as pickle
 from context import campaignadvisor
 from sklearn import preprocessing
-import cpickle as pickle
-
 
 class Normalizer():
     MIN_VAL = 0
@@ -77,10 +77,6 @@ def main():
 
     # country statistics dataframe
     df = pd.merge(votes, jobs, on='clean_fips', sort=False, how="inner")
-    
-    # example dataframe
-    # df = pd.DataFrame({'a': [2, 4, 5], 'b': [3, 9, 4]}, dtype=np.float)
-    # print(df)
 
     # get feature list from county statistics
     features_to_drop = ['clean_fps', 'fips_code', 'FIPS', 'State', 'County', 'winner_name', 'winner_party']
@@ -102,6 +98,11 @@ def main():
     # testing
     print df_scaled.df
     print test_normalize(df, features_to_scale, alg='minmax')
+
+    path = 'this_pickle'
+    # pickling
+    with open(path, 'wb') as file_out:
+        pickle.dump(df_scaled, file_out)
 
 if __name__ == "__main__":
     main()
