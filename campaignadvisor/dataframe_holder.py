@@ -190,6 +190,7 @@ def _create_county_statistics():
     county_statistics.drop(['State', 'County', FIPS], inplace=True, axis=1)
     # Sort columns for clarity
     county_statistics = county_statistics.reindex_axis(sorted(county_statistics.columns), axis=1)
+    county_statistics.index = county_statistics[CLEAN_FIPS]
     return county_statistics
 
 
