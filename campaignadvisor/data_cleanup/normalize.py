@@ -101,17 +101,18 @@ def main():
     df_cs = df_scaled.df
 
     # testing
-    # print "-------ALG CHECK TEST-------"
-    # print test_normalize(df, features_to_scale, alg=n_alg)
+    print "-------ALG CHECK TEST-------"
+    print test_normalize(df, features_to_scale, alg=n_alg)
 
     print "--------MIN MAX TEST--------"
     features_to_test = list()
-    for feature in features_to_scale:
-        if n_alg in feature:
+    for feature in df_cs.columns:
+        if 'minmax' in feature:
             # print df[feature]
             features_to_test.append(feature)
-    # print features_to_test
+    print features_to_test
     df_cs['Test_Max'] = df_cs[features_to_test].max(axis=1)
+    print df_cs
 
     # pickling
     path = 'this_pickle'
