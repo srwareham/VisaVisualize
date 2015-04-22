@@ -42,8 +42,8 @@ class Normalizer():
 
     def normalize(self, feature):
         # check if column min and max equals the global min and max
-        #if self.MAX_VAL == self.df[feature].max() and self.MIN_VAL == self.df[feature].min():
-        #    return True
+        if self.MAX_VAL == self.df[feature].max() and self.MIN_VAL == self.df[feature].min():
+            return True
         if self.alg == 'minmax':
             self.normalize_minmax(feature)
         elif self.alg == 'std':
@@ -108,13 +108,12 @@ def main():
     features_to_test = list()
     for feature in df_cs.columns:
         if 'minmax' in feature:
-            # print df[feature]
+            #print df[feature]
             features_to_test.append(feature)
-    print features_to_test
-    if df_cs[features_to_test].max == 1:
-        print 'Yes, Max = 1 is achieved in minmax'
-    df_cs['Test_Max'] = df_cs[features_to_test].max(axis=1)
-    print df_cs
+            local_max = max(df_cs[feature])
+            #print local_max
+    #print features_to_test
+    #df_cs['Test_Max'] = df_cs[features_to_test].max(axis=1)
 
     # pickling
     path = 'this_pickle'
