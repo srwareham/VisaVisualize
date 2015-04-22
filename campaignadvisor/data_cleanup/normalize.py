@@ -98,11 +98,11 @@ def main():
         df_scaled.normalize(feature)
         # print df_scaled.df[feature]
 
-    df = df_scaled.df
+    df_cs = df_scaled.df
 
     # testing
-    print "-------ALG CHECK TEST-------"
-    print test_normalize(df, features_to_scale, alg=n_alg)
+    # print "-------ALG CHECK TEST-------"
+    # print test_normalize(df, features_to_scale, alg=n_alg)
 
     print "--------MIN MAX TEST--------"
     features_to_test = list()
@@ -111,14 +111,13 @@ def main():
             # print df[feature]
             features_to_test.append(feature)
     # print features_to_test
-    df['Test_Max'] = df[features_to_test].max(axis=1)
-    print df_scaled.df
+    df_cs['Test_Max'] = df_cs[features_to_test].max(axis=1)
 
     # pickling
     path = 'this_pickle'
-    df.index = df['clean_fips']
+    df_cs.index = df['clean_fips']
     with open(path, 'wb') as file_out:
-        pickle.dump(df, file_out)
+        pickle.dump(df_cs, file_out)
 
 if __name__ == "__main__":
     main()
