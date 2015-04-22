@@ -111,6 +111,8 @@ def main():
             # print df[feature]
             features_to_test.append(feature)
     print features_to_test
+    if df_cs[features_to_test].max == 1:
+        print 'Yes, Max = 1 is achieved in minmax'
     df_cs['Test_Max'] = df_cs[features_to_test].max(axis=1)
     print df_cs
 
