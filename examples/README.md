@@ -1,6 +1,5 @@
-To run any example, cd to the top level directory of the project.
-From there, type:
+From any working directory, type:
 
-    python -m examples.exampleName
+    python path/to/example.py
 
-where exampleName is the name of exampleName.py WITHOUT ".py"
+(relative paths work as well)

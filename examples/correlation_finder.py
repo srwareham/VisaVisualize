@@ -40,7 +40,6 @@ def main():
     pd.options.display.max_rows = 1000
     county_statistics_name = campaignadvisor.dataframe_holder.COUNTY_STATISTICS
     county_statistics = campaignadvisor.dataframe_holder.get_dataframe(county_statistics_name)
-    county_statistics.index = county_statistics['clean_fips']
 
     # Variable to test
     dependent_variable = "contributions_per_capita"
