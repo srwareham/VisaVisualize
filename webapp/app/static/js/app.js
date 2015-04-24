@@ -2,7 +2,7 @@
 angular.module('CampaignAdvisor', ['ngResource', 'ngRoute', 'ui.bootstrap', 'ui.date', 'ngMaterial'])
   .config(['$routeProvider', function ($routeProvider) {
     $routeProvider
-      .when('/', {
+      .when('/map', {
         templateUrl: 'views/home/home.html', 
         controller: 'HomeController',
         resolve: {
@@ -23,6 +23,10 @@ angular.module('CampaignAdvisor', ['ngResource', 'ngRoute', 'ui.bootstrap', 'ui.
     .when('/topcontributors', {
       templateUrl: 'views/home/topcontributors.html', 
       controller: 'ContributorsController'
+    })
+    .when('/', {
+      templateUrl: 'views/home/basicoverview.html', 
+      controller: 'OverviewController'
     })
     .otherwise({redirectTo: '/'});
   }]);

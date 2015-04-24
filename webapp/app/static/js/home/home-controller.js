@@ -75,11 +75,9 @@ angular.module('CampaignAdvisor')
       if ($scope.dataPoint) {
         countyDataService.getData($scope.dataPoint).then(function(countyData) {
           drawMap.setCurrentData(countyData, 1);
-          if (!drawMap.zoomedIn[1]) {
             stateFips.forEach(function(fips) {
               drawMap.visualizeDataForState(fips, 1);
             })
-          }
           
         });
       }

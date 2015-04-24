@@ -14,7 +14,7 @@ body {
 }
 
 .bar:hover {
-  fill: orangered;
+  fill: #FF4081;
 }
 
 .x.axis path {
@@ -23,9 +23,8 @@ body {
 
 .d3-tip {
   line-height: 1;
-  font-weight: bold;
   padding: 12px;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.9);
   color: #fff;
   border-radius: 2px;
 }
@@ -48,4 +47,33 @@ body {
   margin: -1px 0 0 0;
   top: 100%;
   left: 0;
+}
+
+md-whiteframe.contribution-header  {
+  background: #fff;
+  margin: 20px;
+  margin-top: 0px;
+  padding: 20px; 
+  font-size: 40px;
+  font-family: RobotoDraft;
+}
+
+md-content.md-padding {
+  padding-top: 0px;
+  padding-left: 0px;
+}
+.y.axis .tick text,
+.x.axis .tick text {
+  font-family: 'RobotoDraft';
+  font-size: 12px;
+}
+
+.campaign-header {
+  background-color: rgb(63,81,181);
+  font-size: 40px;
+  padding-top: 40px;
+  padding-bottom: 20px;
+  padding-left: 20px;
+  font-family: RobotoDraft;
+  color: white;
 }
