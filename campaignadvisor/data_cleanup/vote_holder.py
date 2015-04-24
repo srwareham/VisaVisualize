@@ -150,6 +150,8 @@ def get_county_dataframe():
     df = pd.DataFrame(data, columns=header)
     df['percent_vote_gop'] = df['gop_votes'] / df['total_votes']
     df['percent_vote_dem'] = df['dem_votes'] / df['total_votes']
+    df.index = df['clean_fips']
+    del df['clean_fips']
     return df
 
 

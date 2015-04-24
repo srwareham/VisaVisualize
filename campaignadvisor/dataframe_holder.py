@@ -1,4 +1,3 @@
-
 """
 Module for accessing relevant data tables.
 Contains logic for storing locally serialized caches to *greatly* speed up all accesses after the initial one
@@ -29,7 +28,7 @@ INCOME = "income"
 PEOPLE = "people"
 VETERANS = "veterans"
 CONTRIBUTIONS = "contributions"
-JOBS_VS_CONTRIBUTIONS = "jobs_vs_contributions"
+COUNTY_CONTRIBUTIONS = 'county_contributions'
 COUNTY_STATISTICS = "county_statistics"
 
 # Serialized version names
@@ -39,7 +38,7 @@ INCOME_SERIALIZED_NAME = "income.pik"
 PEOPLE_SERIALIZED_NAME = "people.pik"
 VETERANS_SERIALIZED_NAME = "veterans.pik"
 CONTRIBUTIONS_SERIALIZED_NAME = "contributions.pik"
-JOBS_VS_CONTRIBUTIONS_SERIALIZED_NAME = "jobs_vs_contributions.pik"
+COUNTY_CONTRIBUTIONS_SERIALIZED_NAME = "county_contributions.pik"
 COUNTY_STATISTICS_SERIALIZED_NAME = "county_statistics.pik"
 
 
@@ -68,26 +67,119 @@ class DataFrameWrapper:
         self.use_pickle = use_pickle
 
 
+def _cleanup_dataframe(dataframe):
+    """
+    Remove state, county, and fips columns
+    set index to be cleanfips
+    :param dataframe:
+    :return:
+    """
+    dataframe[CLEAN_FIPS] = dataframe[FIPS].apply(data_cleanup.data_cleanup.get_clean_fips)
+    dataframe.index = dataframe[CLEAN_FIPS]
+    del dataframe[FIPS]
+    del dataframe["State"]
+    del dataframe["County"]
+    del dataframe[CLEAN_FIPS]
+    return dataframe
+
+
 def _create_jobs():
+    """
+    Returns a dataframe with an index for every county in the us. (5 character string always)
+
+    Columns are:
+    ['State', 'County', 'NumCivEmployed0812', 'PctEmpAgriculture0812', 'PctEmpManufacturing0812', 'PctEmpServices0812',
+    'PctEmpGovt0812', 'PctEmpChange0809', 'UnempRate2009', 'PctEmpChange0910', 'UnempRate2010', 'NumCivLaborForce2008',
+    'NumEmployed2008', 'NumUnemployed2008', 'UnempRate2008', 'NumCivLaborForce2009', 'NumEmployed2009',
+    'NumUnemployed2009', 'NumCivLaborForce2010', 'NumEmployed2010', 'NumUnemployed2010', 'UnempRate2011',
+    'PctEmpChange1011', 'NumCivLaborForce2011', 'NumEmployed2011', 'NumUnemployed2011', 'PctEmpChange0711',
+    'NumCivLaborForce2012', 'UnempRate2012', 'NumEmployed2012', 'NumUnemployed2011.1', 'PctEmpChange1012',
+    'PctEmpChange0712']
+
+    :return:
+    """
     rural_atlas_data_10_resource = resources.get_resource(RURAL_ATLAS_DATA__XLS)
     workbook = pd.ExcelFile(rural_atlas_data_10_resource.get_local_path())
     jobs = workbook.parse(u"Jobs")
-    jobs[CLEAN_FIPS] = jobs[FIPS].apply(data_cleanup.data_cleanup.get_clean_fips)
-    return jobs
+    return _cleanup_dataframe(jobs)
 
 
 def _create_people():
+    """
+    Returns a dataframe with an index for every county in the us. (5 character string always)
+
+    Columns are:
+    ['State', 'County', 'PopChangeRate1013', 'NetMigrationRate1013', 'NaturalChangeRate1013', 'PopChangeRate0010',
+    'NetMigrationRate0010', 'NaturalChangeRate0010', 'PopDensity2010', 'Under18Pct2010', 'Age65AndOlderPct2010',
+    'WhiteNonHispanicPct2010', 'BlackNonHispanicPct2010', 'AsianNonHispanicPct2010', 'NativeAmericanNonHispanicPct2010',
+    'HispanicPct2010', 'MultipleRacePct2010', 'NonHispanicWhitePopChangeRate0010', 'NonHispanicBlackPopChangeRate0010',
+    'NonHispanicAsianPopChangeRate0010', 'NonHispanicNativeAmericanPopChangeRate0010', 'HispanicPopChangeRate0010',
+    'MultipleRacePopChangeRate0010', 'WhiteNonHispanicNum2010', 'BlackNonHispanicNum2010', 'AsianNonHispanicNum2010',
+    'NativeAmericanNonHispanicNum2010', 'HispanicNum2010', 'MultipleRaceNum2010', 'ForeignBornPct0812',
+    'ForeignBornEuropePct0812', 'ForeignBornMexPct0812', 'NonEnglishHHPct0812', 'Ed1LessThanHSPct0812',
+    'Ed2HSGradOnlyPct0812', 'Ed3SomeCollegePct0812', 'Ed4CollegePlusPct0812', 'AvgHHSize0812', 'FemaleHHPct0812',
+    'HH65PlusAlonePct0812', 'OwnHomePct0812', 'Ed2HSGradOnlyNum0812', 'Ed3SomeCollegeNum0812', 'Ed1LessThanHSNum0812',
+    'TotalPop25Plus0812', 'ForeignBornCentralSouthAmPct0812', 'NonEnglishHHNum0812', 'HH65PlusAloneNum0812',
+    'OwnHomeNum0812', 'FemaleHHNum0812', 'ForeignBornNum0812', 'TotalOccHU0812', 'Ed4CollegePlusNum0812',
+    'ForeignBornCentralSouthAmNum0812', 'ForeignBornCaribPct0812', 'ForeignBornCaribNum0812', 'TotalPopACS0812',
+    'ForeignBornAfricaNum0812', 'ForeignBornAsiaPct0812', 'ForeignBornAsiaNum0812', 'TotalHH0812',
+    'ForeignBornMexNum0812', 'ForeignBornEuropeNum0812', 'ForeignBornAfricaPct0812', 'LandAreaSQMiles2010',
+    'TotalPop2010', 'Under18Num2010', 'Age65AndOlderNum2010', 'NetMigrationNum0010', 'NaturalChangeNum0010',
+    'TotalPopEst2011', 'TotalPopEstBase2010', 'TotalPopEst2012', 'TotalPopEst2013', 'TotalPopEst2010']
+
+    :return:
+    """
     rural_atlas_data_10_resource = resources.get_resource(RURAL_ATLAS_DATA__XLS)
     workbook = pd.ExcelFile(rural_atlas_data_10_resource.get_local_path())
     people = workbook.parse(u"People")
-    people[CLEAN_FIPS] = people[FIPS].apply(data_cleanup.data_cleanup.get_clean_fips)
-    return people
+    return _cleanup_dataframe(people)
+
+
+def _create_income():
+    """
+    Returns a dataframe with an index for every county in the us. (5 character string always)
+
+    ['State', 'County', 'PovertyAllAgesPct2012', 'PovertyAllAgesNum2012', 'MedHHInc2012', 'PerCapitaInc0812',
+    'PovertyUnder18Num2012', 'PovertyUnder18Pct2012', 'Deep_Pov_All', 'Deep_Pov_Children']
+
+    :return:
+    """
+    rural_atlas_data_10_resource = resources.get_resource(RURAL_ATLAS_DATA__XLS)
+    workbook = pd.ExcelFile(rural_atlas_data_10_resource.get_local_path())
+    income = workbook.parse(u"Income")
+    return _cleanup_dataframe(income)
+
+
+def _create_veterans():
+    """
+    Returns a dataframe with an index for every county in the us. (5 character string always)
+
+    ['State', 'County', 'Vets18OPct', 'GulfWar2VetsPct', 'GulfWar1VetsPct', 'VietnamEraVetsPct', 'KoreanWarVetsPct',
+    'WW2VetsPct', 'MaleVetsPct', 'FemaleVetsPct', 'WhiteNonHispVetsPct', 'BlackVetsPct', 'HispanicVetsPct',
+    'OtherRaceVetsPct', 'MedianVetsInc', 'LessThanHSVetsPct', 'HighSchOnlyVetsPct', 'SomeCollegeVetsPct',
+    'CollegeDegreeVetsPct', 'LFPVetsRate', 'UEVetsRate', 'Vets18ONum', 'CivPop18ONum', 'CivPopVets18to64Num',
+    'CLFVets18to64Num', 'MedianNonVetsInc']
+
+    :return:
+    """
+    rural_atlas_data_10_resource = resources.get_resource(RURAL_ATLAS_DATA__XLS)
+    workbook = pd.ExcelFile(rural_atlas_data_10_resource.get_local_path())
+    veterans = workbook.parse(u"Veterans")
+    return _cleanup_dataframe(veterans)
 
 
 def _create_contributions():
+    """
+    Returns a dataframe with index = range(0, ~5 million); each row corresponds to a contribution made
+
+    Columns are: ['cmte_id', 'cand_id', 'cand_nm', 'contbr_nm', 'contbr_city', 'contbr_st', 'contbr_zip',
+    'contbr_employer', 'contbr_occupation', 'contb_receipt_amt', 'contb_receipt_dt', 'receipt_desc', 'memo_cd',
+    'memo_text', 'form_tp', 'file_num', 'tran_id', 'election_tp', 'clean_zips', 'clean_fips', 'clean_contribution']
+    :return:
+    """
     contributions_resource = resources.get_resource(CONTRIBUTIONS_CSV)
-    # MUST read in all as objects. Presumed bug in pandas implementation truncates significant information if not
-    # read in as a string 0001 becomes 1
+    # MUST read in *all* as objects. Presumed bug in pandas implementation truncates significant information if any
+    # column is read in as something other than object. Ex: a string 0001 becomes 1
     contributions_dataframe = pd.read_csv(contributions_resource.get_local_path(), dtype=object)
     contributions_dataframe[CLEAN_ZIPS] = contributions_dataframe[CONTRIBUTION_ZIP].apply(
         data_cleanup.data_cleanup.get_clean_zip)
@@ -97,100 +189,166 @@ def _create_contributions():
     return contributions_dataframe
 
 
-def _index_to_column(df, new_column_name):
-    # assign the new_column_name as the index (whatever was given in the group by step)
-    df[new_column_name] = df.index
-    # reset the index to the row number to prevent confusion
-    df.index = range(len(df.index))
-    return df
+def _create_county_contributions():
+    """
+    Returns a dataframe with an index for every county in the us. (5 character string always)
+    Columns are:
+    ['gop_contributions_count', 'dem_contributions_sum', 'gop_contributions_sum', 'dem_contributions_mean',
+    'gop_contributions_mean', 'dem_contributions_median', 'gop_contributions_median']
 
+    :return:
+    """
+    contributions = get_dataframe(CONTRIBUTIONS)
+    # contributions['contribution_amount'] = contributions['contb_receipt_amt'].apply(np.float64)
+    grouped = contributions.groupby(CLEAN_FIPS)
 
-def _create_jobs_vs_contributions():
-    # Get job data
-    jobs = get_dataframe(JOBS)
+    contribution_count = grouped.count()[CLEAN_CONTRIBUTION]
+    contribution_sum = grouped.sum()[CLEAN_CONTRIBUTION]
+    contribution_mean = grouped.mean()[CLEAN_CONTRIBUTION]
+    contribution_median = grouped.median()[CLEAN_CONTRIBUTION]
 
-    # Get all contributions
-    contributions_dataframe = get_dataframe(CONTRIBUTIONS)
+    county_contributions = pd.concat([contribution_count, contribution_sum, contribution_mean, contribution_median],
+                                     axis=1)
 
-    # Group by clean_fips
-    grouped = contributions_dataframe.groupby(CLEAN_FIPS)
-    # Create dataframe with median contributions as a column
-    median_contributions = _index_to_column(grouped.median(), CLEAN_FIPS)
-    # Create dataframe with mean contributions as a column
-    mean_contributions = _index_to_column(grouped.mean(), CLEAN_FIPS)
+    county_contributions.columns = ['contribution_count', 'contribution_sum', 'contribution_mean',
+                                    'contribution_median']
 
-    # Create dataframe with columns: clean_fips clean_contribution_mean and clean_contribution_median (county by county)
-    contributions_by_county = pd.merge(median_contributions, mean_contributions, on=CLEAN_FIPS, sort=False,
-                                       how="inner", suffixes=('_median', '_mean'))
+    '''
+    # TODO: Outline for if want to squash unique contributors
+    contributions['unique'] = contributions['contbr_nm'] + " " +contributions['contbr_zip']
+    unique_contributor_group = contributions.groupby('unique')
+    contributor_sums = unique_contributor_group.sum()
+    contributor_counts = unique_contributor_group.count()
+    '''
 
-    # Merge jobs data into contributions by county (joins only those with an intersection)
-    joined = pd.merge(contributions_by_county, jobs, on=CLEAN_FIPS, sort=False, how="inner")
+    # cand_id
+    county_candidate_groups = contributions.groupby(['clean_fips', 'cand_nm'])['clean_contribution']
 
-    # Count the number of contributions in each county
-    contributions_size_series = grouped.size()
-    contributions_size_dataframe = pd.DataFrame(contributions_size_series, columns=[CONTRIBUTIONS_COUNT])
-    contributions_size_dataframe[CLEAN_FIPS] = contributions_size_dataframe.index
-    # Add the number of contributions by county as a column
-    joined = pd.merge(joined, contributions_size_dataframe, on=CLEAN_FIPS, sort=False, how="inner")
+    county_candidate_counts = county_candidate_groups.count()
+    county_candidate_sums = county_candidate_groups.sum()
+    county_candidate_means = county_candidate_groups.mean()
+    county_candidate_medians = county_candidate_groups.median()
 
-    # Exclude count from FIPS code 0
-    # Exclude invalid fips (00000 is entire US, -1 is error, -2 and below are special cases without matching data)
-    joined = joined[joined[CLEAN_FIPS] > 0]
+    # Yes, very ugly implementation.
 
-    # Throw out data that don't meet a minimum number of contributions
-    # (don't want to over weigh input based on law of small numbers)
-    # Cutoff is implemented as 25th percentile of occurrences
-    count_cutoff = np.percentile(joined[CONTRIBUTIONS_COUNT], CUTOFF_PERCENTILE)
+    def get_dem_contributions_count(clean_fips):
+        try:
+            return county_candidate_counts[clean_fips]['Obama, Barack']
+        except KeyError:
+            return 0
 
-    # Filter out counties with less than cutoff contributions
-    joined = joined[joined[CONTRIBUTIONS_COUNT] >= count_cutoff]
-    return joined
+    def get_gop_contributions_count(clean_fips):
+        try:
+            return county_candidate_counts[clean_fips]['Romney, Mitt']
+        except KeyError:
+            return 0
 
+    def get_dem_contributions_sum(clean_fips):
+        try:
+            return county_candidate_sums[clean_fips]['Obama, Barack']
+        except KeyError:
+            return 0
 
-def _create_income():
-    rural_atlas_data_10_resource = resources.get_resource(RURAL_ATLAS_DATA__XLS)
-    workbook = pd.ExcelFile(rural_atlas_data_10_resource.get_local_path())
-    income = workbook.parse(u"Income")
-    income[CLEAN_FIPS] = income[FIPS].apply(data_cleanup.data_cleanup.get_clean_fips)
-    return income
+    def get_gop_contributions_sum(clean_fips):
+        try:
+            return county_candidate_sums[clean_fips]['Romney, Mitt']
+        except KeyError:
+            return 0
 
+    def get_dem_contributions_mean(clean_fips):
+        try:
+            return county_candidate_means[clean_fips]['Obama, Barack']
+        except KeyError:
+            return 0
 
-def _create_veterans():
-    rural_atlas_data_10_resource = resources.get_resource(RURAL_ATLAS_DATA__XLS)
-    workbook = pd.ExcelFile(rural_atlas_data_10_resource.get_local_path())
-    veterans = workbook.parse(u"Veterans")
-    veterans[CLEAN_FIPS] = veterans[FIPS].apply(data_cleanup.data_cleanup.get_clean_fips)
-    return veterans
+    def get_gop_contributions_mean(clean_fips):
+        try:
+            return county_candidate_means[clean_fips]['Romney, Mitt']
+        except KeyError:
+            return 0
+
+    def get_dem_contributions_median(clean_fips):
+        try:
+            return county_candidate_medians[clean_fips]['Obama, Barack']
+        except KeyError:
+            return 0
+
+    def get_gop_contributions_median(clean_fips):
+        try:
+            return county_candidate_medians[clean_fips]['Romney, Mitt']
+        except KeyError:
+            return 0
+
+    county_contributions['temp'] = county_contributions.index
+    county_contributions['dem_contributions_count'] = county_contributions['temp'].apply(get_dem_contributions_count)
+    county_contributions['gop_contributions_count'] = county_contributions['temp'].apply(get_gop_contributions_count)
+    county_contributions['dem_contributions_sum'] = county_contributions['temp'].apply(get_dem_contributions_sum)
+    county_contributions['gop_contributions_sum'] = county_contributions['temp'].apply(get_gop_contributions_sum)
+    county_contributions['dem_contributions_mean'] = county_contributions['temp'].apply(get_dem_contributions_mean)
+    county_contributions['gop_contributions_mean'] = county_contributions['temp'].apply(get_gop_contributions_mean)
+    county_contributions['dem_contributions_median'] = county_contributions['temp'].apply(get_dem_contributions_median)
+    county_contributions['gop_contributions_median'] = county_contributions['temp'].apply(get_gop_contributions_median)
+    del county_contributions['temp']
+    return county_contributions
 
 
 def _create_county_statistics():
-    jobs_vs_contributions = get_dataframe(JOBS_VS_CONTRIBUTIONS)
-    people = get_dataframe(PEOPLE)
+    """
+     Returns a dataframe with an index for every county in the us. (5 character string always)
+
+    Columns:
+    ['Age65AndOlderNum2010', 'Age65AndOlderPct2010', 'AsianNonHispanicNum2010', 'AsianNonHispanicPct2010', 'AvgHHSize0812',
+    'BlackNonHispanicNum2010', 'BlackNonHispanicPct2010', 'BlackVetsPct', 'CLFVets18to64Num', 'CivPop18ONum',
+    'CivPopVets18to64Num', 'CollegeDegreeVetsPct', 'Deep_Pov_All', 'Deep_Pov_Children', 'Ed1LessThanHSNum0812',
+    'Ed1LessThanHSPct0812', 'Ed2HSGradOnlyNum0812', 'Ed2HSGradOnlyPct0812', 'Ed3SomeCollegeNum0812',
+    'Ed3SomeCollegePct0812', 'Ed4CollegePlusNum0812', 'Ed4CollegePlusPct0812', 'FemaleHHNum0812', 'FemaleHHPct0812',
+    'FemaleVetsPct', 'ForeignBornAfricaNum0812', 'ForeignBornAfricaPct0812', 'ForeignBornAsiaNum0812',
+    'ForeignBornAsiaPct0812', 'ForeignBornCaribNum0812', 'ForeignBornCaribPct0812', 'ForeignBornCentralSouthAmNum0812',
+    'ForeignBornCentralSouthAmPct0812', 'ForeignBornEuropeNum0812', 'ForeignBornEuropePct0812', 'ForeignBornMexNum0812',
+    'ForeignBornMexPct0812', 'ForeignBornNum0812', 'ForeignBornPct0812', 'GulfWar1VetsPct', 'GulfWar2VetsPct',
+    'HH65PlusAloneNum0812', 'HH65PlusAlonePct0812', 'HighSchOnlyVetsPct', 'HispanicNum2010', 'HispanicPct2010',
+    'HispanicPopChangeRate0010', 'HispanicVetsPct', 'KoreanWarVetsPct', 'LFPVetsRate', 'LandAreaSQMiles2010',
+    'LessThanHSVetsPct', 'MaleVetsPct', 'MedHHInc2012', 'MedianNonVetsInc', 'MedianVetsInc', 'MultipleRaceNum2010',
+    'MultipleRacePct2010', 'MultipleRacePopChangeRate0010', 'NativeAmericanNonHispanicNum2010',
+    'NativeAmericanNonHispanicPct2010', 'NaturalChangeNum0010', 'NaturalChangeRate0010', 'NaturalChangeRate1013',
+    'NetMigrationNum0010', 'NetMigrationRate0010', 'NetMigrationRate1013', 'NonEnglishHHNum0812', 'NonEnglishHHPct0812',
+    'NonHispanicAsianPopChangeRate0010', 'NonHispanicBlackPopChangeRate0010', 'NonHispanicNativeAmericanPopChangeRate0010',
+    'NonHispanicWhitePopChangeRate0010', 'NumCivEmployed0812', 'NumCivLaborForce2008', 'NumCivLaborForce2009',
+    'NumCivLaborForce2010', 'NumCivLaborForce2011', 'NumCivLaborForce2012', 'NumEmployed2008', 'NumEmployed2009',
+    'NumEmployed2010', 'NumEmployed2011', 'NumEmployed2012', 'NumUnemployed2008', 'NumUnemployed2009', 'NumUnemployed2010',
+    'NumUnemployed2011', 'NumUnemployed2011.1', 'OtherRaceVetsPct', 'OwnHomeNum0812', 'OwnHomePct0812',
+    'PctEmpAgriculture0812', 'PctEmpChange0711', 'PctEmpChange0712', 'PctEmpChange0809', 'PctEmpChange0910',
+    'PctEmpChange1011', 'PctEmpChange1012', 'PctEmpGovt0812', 'PctEmpManufacturing0812', 'PctEmpServices0812',
+    'PerCapitaInc0812', 'PopChangeRate0010', 'PopChangeRate1013', 'PopDensity2010', 'PovertyAllAgesNum2012',
+    'PovertyAllAgesPct2012', 'PovertyUnder18Num2012', 'PovertyUnder18Pct2012', 'SomeCollegeVetsPct', 'TotalHH0812',
+    'TotalOccHU0812', 'TotalPop2010', 'TotalPop25Plus0812', 'TotalPopACS0812', 'TotalPopEst2010', 'TotalPopEst2011',
+    'TotalPopEst2012', 'TotalPopEst2013', 'TotalPopEstBase2010', 'UEVetsRate', 'Under18Num2010', 'Under18Pct2010',
+    'UnempRate2008', 'UnempRate2009', 'UnempRate2010', 'UnempRate2011', 'UnempRate2012', 'Vets18ONum', 'Vets18OPct',
+    'VietnamEraVetsPct', 'WW2VetsPct', 'WhiteNonHispVetsPct', 'WhiteNonHispanicNum2010', 'WhiteNonHispanicPct2010',
+    'contribution_count', 'contribution_mean', 'contribution_median', 'contribution_sum', 'contributions_per_capita',
+    'dem_contributions_count', 'dem_contributions_mean', 'dem_contributions_median', 'dem_contributions_sum', 'dem_votes',
+    'gop_contributions_count', 'gop_contributions_mean', 'gop_contributions_median', 'gop_contributions_sum', 'gop_votes',
+    'percent_vote_dem', 'percent_vote_gop', 'total_votes', 'winner_name', 'winner_party']
+
+    :return:
+    """
     votes = get_dataframe(VOTES)
-    # Avoid collisions because they get messy beyond 2 duplicates
-    people.drop(['State', 'County', FIPS], inplace=True, axis=1)
+    county_contributions = get_dataframe(COUNTY_CONTRIBUTIONS)
+    county_contributions = county_contributions[np.float64(county_contributions.index) > 0]
+    jobs = get_dataframe(JOBS)
     income = get_dataframe(INCOME)
-    income.drop(['State', 'County', FIPS], inplace=True, axis=1)
+    people = get_dataframe(PEOPLE)
     veterans = get_dataframe(VETERANS)
-    veterans.drop(['State', 'County', FIPS], inplace=True, axis=1)
 
-    # Merge component dataframes
-    county_statistics = pd.merge(jobs_vs_contributions, people, on=CLEAN_FIPS, sort=False, how="inner")
-    county_statistics = pd.merge(county_statistics, income, on=CLEAN_FIPS, sort=False, how="inner")
-    county_statistics = pd.merge(county_statistics, veterans, on=CLEAN_FIPS, sort=False, how="inner")
-    county_statistics = pd.merge(county_statistics, votes, on=CLEAN_FIPS, sort=False, how="inner")
+    county_statistics = pd.concat([votes, county_contributions, jobs, income, people, veterans], axis=1)
 
-    #Add in contributions_per_capita
-    county_statistics['contributions_per_capita'] = county_statistics['contributions_count'] * 1.0 / county_statistics['TotalPopEst2012']
+    county_statistics = county_statistics[pd.notnull(county_statistics['total_votes'])]
+    county_statistics = county_statistics[pd.notnull(county_statistics['contribution_count'])]
+    county_statistics = county_statistics[pd.notnull(county_statistics['TotalPopEst2012'])]
 
-    # Rename to lowercase
-    county_statistics['state'] = county_statistics['State']
-    county_statistics['county'] = county_statistics['County']
-    # Drop unwanted columns
-    county_statistics.drop(['State', 'County', FIPS], inplace=True, axis=1)
-    # Sort columns for clarity
+    county_statistics['contributions_per_capita'] = np.true_divide(county_statistics['contribution_count'],
+                                                                   county_statistics['TotalPopEst2012'])
     county_statistics = county_statistics.reindex_axis(sorted(county_statistics.columns), axis=1)
-    county_statistics.index = county_statistics[CLEAN_FIPS]
     return county_statistics
 
 
@@ -219,7 +377,7 @@ def _get_data_frames():
         DataFrameWrapper(INCOME, INCOME_SERIALIZED_NAME, _create_income),
         DataFrameWrapper(VETERANS, VETERANS_SERIALIZED_NAME, _create_veterans),
         DataFrameWrapper(VOTES, VOTES_SERIALIZED_NAME, data_cleanup.vote_holder.get_county_dataframe),
-        DataFrameWrapper(JOBS_VS_CONTRIBUTIONS, JOBS_VS_CONTRIBUTIONS_SERIALIZED_NAME, _create_jobs_vs_contributions),
+        DataFrameWrapper(COUNTY_CONTRIBUTIONS, COUNTY_CONTRIBUTIONS_SERIALIZED_NAME, _create_county_contributions),
         DataFrameWrapper(COUNTY_STATISTICS, COUNTY_STATISTICS_SERIALIZED_NAME, _create_county_statistics)
     ]
 
@@ -261,8 +419,9 @@ def get_dataframe(name):
 
 def debug():
     df = get_dataframe(COUNTY_STATISTICS)
+    print df.head(30)
     print len(df)
-    print df.head()
+    print df.index
     print list(df.columns)
 
 
