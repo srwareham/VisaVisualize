@@ -24,6 +24,6 @@ def plot_columns(df, x_column, y_column):
 
 
 if __name__ == "__main__":
-    df_name = campaignadvisor.dataframe_holder.JOBS_VS_CONTRIBUTIONS
+    df_name = campaignadvisor.dataframe_holder.COUNTY_STATISTICS
     county_statistics = campaignadvisor.dataframe_holder.get_dataframe(df_name)
-    plot_columns(county_statistics, 'UnempRate2012', 'clean_contribution_mean')
+    plot_columns(county_statistics, 'UnempRate2012', 'contribution_mean')
