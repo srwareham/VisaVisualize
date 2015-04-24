@@ -54,9 +54,33 @@ CONTRIBUTIONS_COUNT = "contributions_count"
 CLEAN_FIPS = "clean_fips"
 CLEAN_ZIPS = "clean_zips"
 FIPS = "FIPS"
+# Is removed from relevant tables
+COUNTY = "County"
+# Is removed from relevant tables
+STATE = "State"
+CANDIDATE_NAME = 'cand_nm'
+CONTRIBUTION_MEDIAN = 'contribution_median'
+CONTRIBUTION_MEAN = 'contribution_mean'
+CONTRIBUTION_SUM = 'contribution_sum'
+CONTRIBUTION_COUNT = 'contribution_count'
+CONTRIBUTIONS_PER_CAPITA = 'contributions_per_capita'
+POPULATION_2012 = 'TotalPopEst2012'
+TOTAL_VOTES = 'total_votes'
+GOP_CONTRIBUTIONS_MEDIAN = 'gop_contributions_median'
+DEM_CONTRIBUTIONS_MEDIAN = 'dem_contributions_median'
+GOP_CONTRIBUTIONS_MEAN = 'gop_contributions_mean'
+DEM_CONTRIBUTIONS_MEAN = 'dem_contributions_mean'
+GOP_CONTRIBUTIONS_SUM = 'gop_contributions_sum'
+DEM_CONTRIBUTIONS_SUM = 'dem_contributions_sum'
+GOP_CONTRIBUTIONS_COUNT = 'gop_contributions_count'
+DEM_CONTRIBUTIONS_COUNT = 'dem_contributions_count'
 
 # Logic constants
 CUTOFF_PERCENTILE = 25
+
+# String literals
+MITT_ROMNEY = 'Romney, Mitt'
+BARACK_OBAMA = 'Obama, Barack'
 
 
 class DataFrameWrapper:
@@ -77,8 +101,8 @@ def _cleanup_dataframe(dataframe):
     dataframe[CLEAN_FIPS] = dataframe[FIPS].apply(data_cleanup.data_cleanup.get_clean_fips)
     dataframe.index = dataframe[CLEAN_FIPS]
     del dataframe[FIPS]
-    del dataframe["State"]
-    del dataframe["County"]
+    del dataframe[STATE]
+    del dataframe[COUNTY]
     del dataframe[CLEAN_FIPS]
     return dataframe
 
@@ -199,7 +223,6 @@ def _create_county_contributions():
     :return:
     """
     contributions = get_dataframe(CONTRIBUTIONS)
-    # contributions['contribution_amount'] = contributions['contb_receipt_amt'].apply(np.float64)
     grouped = contributions.groupby(CLEAN_FIPS)
 
     contribution_count = grouped.count()[CLEAN_CONTRIBUTION]
@@ -210,19 +233,11 @@ def _create_county_contributions():
     county_contributions = pd.concat([contribution_count, contribution_sum, contribution_mean, contribution_median],
                                      axis=1)
 
-    county_contributions.columns = ['contribution_count', 'contribution_sum', 'contribution_mean',
-                                    'contribution_median']
+    county_contributions.columns = [CONTRIBUTION_COUNT, CONTRIBUTION_SUM, CONTRIBUTION_MEAN, CONTRIBUTION_MEDIAN]
 
-    '''
-    # TODO: Outline for if want to squash unique contributors
-    contributions['unique'] = contributions['contbr_nm'] + " " +contributions['contbr_zip']
-    unique_contributor_group = contributions.groupby('unique')
-    contributor_sums = unique_contributor_group.sum()
-    contributor_counts = unique_contributor_group.count()
-    '''
 
-    # cand_id
-    county_candidate_groups = contributions.groupby(['clean_fips', 'cand_nm'])['clean_contribution']
+    # could also use 'cand_id'
+    county_candidate_groups = contributions.groupby([CLEAN_FIPS, CANDIDATE_NAME])[CLEAN_CONTRIBUTION]
 
     county_candidate_counts = county_candidate_groups.count()
     county_candidate_sums = county_candidate_groups.sum()
@@ -233,62 +248,62 @@ def _create_county_contributions():
 
     def get_dem_contributions_count(clean_fips):
         try:
-            return county_candidate_counts[clean_fips]['Obama, Barack']
+            return county_candidate_counts[clean_fips][BARACK_OBAMA]
         except KeyError:
             return 0
 
     def get_gop_contributions_count(clean_fips):
         try:
-            return county_candidate_counts[clean_fips]['Romney, Mitt']
+            return county_candidate_counts[clean_fips][MITT_ROMNEY]
         except KeyError:
             return 0
 
     def get_dem_contributions_sum(clean_fips):
         try:
-            return county_candidate_sums[clean_fips]['Obama, Barack']
+            return county_candidate_sums[clean_fips][BARACK_OBAMA]
         except KeyError:
             return 0
 
     def get_gop_contributions_sum(clean_fips):
         try:
-            return county_candidate_sums[clean_fips]['Romney, Mitt']
+            return county_candidate_sums[clean_fips][MITT_ROMNEY]
         except KeyError:
             return 0
 
     def get_dem_contributions_mean(clean_fips):
         try:
-            return county_candidate_means[clean_fips]['Obama, Barack']
+            return county_candidate_means[clean_fips][BARACK_OBAMA]
         except KeyError:
             return 0
 
     def get_gop_contributions_mean(clean_fips):
         try:
-            return county_candidate_means[clean_fips]['Romney, Mitt']
+            return county_candidate_means[clean_fips][MITT_ROMNEY]
         except KeyError:
             return 0
 
     def get_dem_contributions_median(clean_fips):
         try:
-            return county_candidate_medians[clean_fips]['Obama, Barack']
+            return county_candidate_medians[clean_fips][BARACK_OBAMA]
         except KeyError:
             return 0
 
     def get_gop_contributions_median(clean_fips):
         try:
-            return county_candidate_medians[clean_fips]['Romney, Mitt']
+            return county_candidate_medians[clean_fips][MITT_ROMNEY]
         except KeyError:
             return 0
 
-    county_contributions['temp'] = county_contributions.index
-    county_contributions['dem_contributions_count'] = county_contributions['temp'].apply(get_dem_contributions_count)
-    county_contributions['gop_contributions_count'] = county_contributions['temp'].apply(get_gop_contributions_count)
-    county_contributions['dem_contributions_sum'] = county_contributions['temp'].apply(get_dem_contributions_sum)
-    county_contributions['gop_contributions_sum'] = county_contributions['temp'].apply(get_gop_contributions_sum)
-    county_contributions['dem_contributions_mean'] = county_contributions['temp'].apply(get_dem_contributions_mean)
-    county_contributions['gop_contributions_mean'] = county_contributions['temp'].apply(get_gop_contributions_mean)
-    county_contributions['dem_contributions_median'] = county_contributions['temp'].apply(get_dem_contributions_median)
-    county_contributions['gop_contributions_median'] = county_contributions['temp'].apply(get_gop_contributions_median)
-    del county_contributions['temp']
+    temp = 'temp'
+    county_contributions[DEM_CONTRIBUTIONS_COUNT] = county_contributions[temp].apply(get_dem_contributions_count)
+    county_contributions[GOP_CONTRIBUTIONS_COUNT] = county_contributions[temp].apply(get_gop_contributions_count)
+    county_contributions[DEM_CONTRIBUTIONS_SUM] = county_contributions[temp].apply(get_dem_contributions_sum)
+    county_contributions[GOP_CONTRIBUTIONS_SUM] = county_contributions[temp].apply(get_gop_contributions_sum)
+    county_contributions[DEM_CONTRIBUTIONS_MEAN] = county_contributions[temp].apply(get_dem_contributions_mean)
+    county_contributions[GOP_CONTRIBUTIONS_MEAN] = county_contributions[temp].apply(get_gop_contributions_mean)
+    county_contributions[DEM_CONTRIBUTIONS_MEDIAN] = county_contributions[temp].apply(get_dem_contributions_median)
+    county_contributions[GOP_CONTRIBUTIONS_MEDIAN] = county_contributions[temp].apply(get_gop_contributions_median)
+    del county_contributions[temp]
     return county_contributions
 
 
@@ -341,13 +356,11 @@ def _create_county_statistics():
     veterans = get_dataframe(VETERANS)
 
     county_statistics = pd.concat([votes, county_contributions, jobs, income, people, veterans], axis=1)
-
-    county_statistics = county_statistics[pd.notnull(county_statistics['total_votes'])]
-    county_statistics = county_statistics[pd.notnull(county_statistics['contribution_count'])]
-    county_statistics = county_statistics[pd.notnull(county_statistics['TotalPopEst2012'])]
-
-    county_statistics['contributions_per_capita'] = np.true_divide(county_statistics['contribution_count'],
-                                                                   county_statistics['TotalPopEst2012'])
+    county_statistics = county_statistics[pd.notnull(county_statistics[TOTAL_VOTES])]
+    county_statistics = county_statistics[pd.notnull(county_statistics[CONTRIBUTION_COUNT])]
+    county_statistics = county_statistics[pd.notnull(county_statistics[POPULATION_2012])]
+    county_statistics[CONTRIBUTIONS_PER_CAPITA] = np.true_divide(county_statistics[CONTRIBUTION_COUNT],
+                                                                 county_statistics[POPULATION_2012])
     county_statistics = county_statistics.reindex_axis(sorted(county_statistics.columns), axis=1)
     return county_statistics
 
