@@ -1,6 +1,6 @@
 from context import campaignadvisor
 import pandas as pd
-import matplotlib.pyplot as pyplot
+#import matplotlib.pyplot as pyplot
 
 
 def get_correlated_fields(df, field_name, ignored_fields=None, ignore_field_name=True):

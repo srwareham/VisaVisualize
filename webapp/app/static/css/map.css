@@ -1,0 +1,19 @@
+.map-header {
+	margin-bottom: 20px;
+}
+
+.map-button {
+  display: inline-block;
+  float: right;
+  font-size: 20px;
+}
+
+md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle, 
+md-progress-circular.md-default-theme .md-inner .md-right .md-half-circle {
+  border-left-color: rgb(255,64,129) !important;
+	border-top-color: rgb(255,64,129) !important;
+}
+
+md-progress-circular.md-default-theme .md-inner .md-right .md-half-circle {
+  border-right-color: rgb(255,64,129) !important;
+}

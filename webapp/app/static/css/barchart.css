@@ -10,7 +10,7 @@ body {
 }
 
 .bar {
-  fill: orange;
+  fill: #9575CD;
 }
 
 .bar:hover {
@@ -69,7 +69,7 @@ md-content.md-padding {
 }
 
 .campaign-header {
-  background-color: rgb(63,81,181);
+  background-color: rgb(103,58,183);
   font-size: 40px;
   padding-top: 40px;
   padding-bottom: 20px;
@@ -77,3 +77,51 @@ md-content.md-padding {
   font-family: RobotoDraft;
   color: white;
 }
+.whiteframe-contributors {
+  margin: 20px;
+}
+md-whiteframe.whiteframe-contributors md-content.md-padding {
+  width: 80% !important;
+}
+.contrib-header {
+  text-align: center;
+  font-size: 18px;
+  margin-right: 0px;
+}
+.contrib-item-text h3 {
+  font-family: 'RobotoDraft';
+  font-size: 15px;
+  font-weight: normal;
+}
+
+#tooltip {   
+    position: absolute;           
+    text-align: center;          
+    font: 12px sans-serif;        
+    background: white;          
+    pointer-events: none;         
+}
+#tooltip h4{
+  margin:0;
+  font-size:14px;
+}
+#tooltip{
+  border-radius:0px;
+  width:auto;
+  padding:0px;
+  color:white;
+  opacity:0;
+}
+#tooltip table{
+  table-layout:fixed;
+}
+#tooltip tr td{
+  padding:0;
+  margin:0;
+}
+#tooltip tr td:nth-child(1){
+  width:50px;
+}
+#tooltip tr td:nth-child(2){
+  text-align:center;
+  }

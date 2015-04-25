@@ -1,3 +1,28 @@
-basic overview
+<div class='campaign-header'>
+	<span>{{ header }}</span>
+	<ng-md-icon icon="arrow_forward" ng-click="nextPage('topcontributors')"></ng-md-icon> 
+</div>
 
-{{ overview }}
+
+<div>
+  <md-content class="md-padding">
+    <md-tabs md-selected="selectedIndex" md-dynamic-height md-border-bottom>
+      <md-tab label="Analyzing voter interaction with presidential elections">
+        <md-content class="md-padding">
+          <p id="topcontributors">
+          </p>
+        </md-content>
+      </md-tab>
+      <md-tab label="Data sets and tools">
+        <md-content class="md-padding">
+          <p>lalala</p>
+        </md-content>
+      </md-tab>
+      <md-tab label="Processing the data">
+        <md-content class="md-padding">
+          <p>lalala2</p>
+        </md-content>
+      </md-tab>
+    </md-tabs>
+  </md-content>
+</div>

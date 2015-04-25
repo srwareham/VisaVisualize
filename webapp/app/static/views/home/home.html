@@ -1,3 +1,8 @@
+<div class='campaign-header map-header'>
+	<span>Mapping out voter interaction</span>
+	<ng-md-icon icon="arrow_back" ng-click="nextPage('topcontributors')"></ng-md-icon> 
+</div>
+
 <div class="container-fluid">
 	<div class="row">
 		<div class="row main-row">
@@ -10,13 +15,13 @@
 				</div>
 				<div class="row">
 					<div class="col-md-6 button-row">
-						<md-button class="md-raised" ng-click="mapZoomOut(2)">Zoom out</md-button>
-						<md-button class="md-raised" ng-click="drawAllCounties(2)">{{mapState[2].state}} all counties</md-button>
+						<md-button class="md-raised map-button md-accent" ng-click="mapZoomOut(2)">Zoom out</md-button>
+						<md-button class="md-raised map-button md-accent" ng-click="drawAllCounties(2)">{{mapState[2].state}} all counties</md-button>
 					</div>
 					<div class="col-md-6">
-						<md-select ng-model="dataPoint2" md-on-open="loadDataPoints()" style="min-width: 200px;">
-						<md-select-label>{{ dataPoint2 }}</md-select-label>
-							<md-option ng-value="dataPoint" ng-repeat="dataPoint in dataPoints">{{ dataPoint }}</md-option>
+						<md-select ng-model="dataPoint2"  class="md-accent" md-on-open="loadDataPoints()" style="min-width: 200px;">
+						<md-select-label class="md-accent">{{ dataPoint2 }}</md-select-label>
+							<md-option class="md-accent" ng-value="dataPoint" ng-repeat="dataPoint in dataPoints">{{ dataPoint }}</md-option>
 						</md-select>
 					</div>
 				</div>
@@ -31,13 +36,13 @@
 				</div>
 				<div class="row">
 					<div class="col-md-6 button-row">
-						<md-button class="md-raised" ng-click="mapZoomOut(1)">Zoom out</md-button>
-						<md-button class="md-raised" ng-click="drawAllCounties(1)">{{mapState[1].state}} all counties</md-button>
+						<md-button class="md-raised map-button" ng-click="mapZoomOut(1)">Zoom out</md-button>
+						<md-button class="md-raised map-button" ng-click="drawAllCounties(1)">{{mapState[1].state}} all counties</md-button>
 					</div>
 					<div class="col-md-6">
-						<md-select ng-model="dataPoint" md-on-open="loadDataPoints()" style="min-width: 200px;">
-						<md-select-label>{{ dataPoint }}</md-select-label>
-							<md-option ng-value="dataPoint" ng-repeat="dataPoint in dataPoints">{{ dataPoint }}</md-option>
+						<md-select ng-model="dataPoint" class="md-accent" md-on-open="loadDataPoints()" style="min-width: 200px;">
+						<md-select-label class="md-accent" >{{ dataPoint }}</md-select-label>
+							<md-option class="md-accent" ng-value="dataPoint" ng-repeat="dataPoint in dataPoints">{{ dataPoint }}</md-option>
 						</md-select>
 					</div>
 				</div>

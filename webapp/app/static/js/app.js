@@ -1,6 +1,6 @@
 // Declare app level module which depends on filters, and services
-angular.module('CampaignAdvisor', ['ngResource', 'ngRoute', 'ui.bootstrap', 'ui.date', 'ngMaterial'])
-  .config(['$routeProvider', function ($routeProvider) {
+angular.module('CampaignAdvisor', ['ngResource', 'ngRoute', 'ui.bootstrap', 'ui.date', 'ngMaterial', 'ngMdIcons'])
+  .config(['$routeProvider', '$mdThemingProvider', function ($routeProvider, $mdThemingProvider) {
     $routeProvider
       .when('/map', {
         templateUrl: 'views/home/home.html', 
@@ -29,4 +29,8 @@ angular.module('CampaignAdvisor', ['ngResource', 'ngRoute', 'ui.bootstrap', 'ui.
       controller: 'OverviewController'
     })
     .otherwise({redirectTo: '/'});
+
+    $mdThemingProvider.theme('default')
+      .primaryPalette('deep-purple')
+      .accentPalette('pink');
   }]);

@@ -1,12 +1,14 @@
 angular.module('CampaignAdvisor')
-  .controller('ContributorsController', ['$scope', '$timeout', function ($scope, $timeout) {
+  .controller('ContributorsController', ['$scope', '$timeout', '$location', function ($scope, $timeout, $location) {
     $scope.header = 'Election Contributions';
     $scope.changeHeader = function(header) {
       $scope.header = header;
     };
-    var tabTitles = ['Contribution by Occupation', 'Contribution by State', 'Do your contributions matter?']
+    $scope.nextPage = function(goTo) {
+      $location.url(goTo);
+    };
+    var tabTitles = ['Contribution by Occupation', 'Contribution by County', 'Contribution by State', 'Do your contributions matter?']
     $scope.$watch('selectedIndex', function() {
-      console.log($scope.selectedIndex);
       if ($scope.selectedIndex != -1) {
         $scope.changeHeader(tabTitles[$scope.selectedIndex]);
       }
@@ -100,5 +102,124 @@ angular.module('CampaignAdvisor')
 
 
   }, 1000);
+  /**
+   * County contributions
+   */
+  $scope.countyContributions = {
+    democrats: {
+      count: [['california', 'los angeles'],['illinois', 'cook'], ['new york', 'new york'],['washington', 'king'],['district of columbia', 'district of columbia'],['massachusetts', 'middlesex'],['california', 'alameda'], ['maryland', 'montgomery'], ['california', 'san diego'], ['california', 'san francisco'],['california', 'santa clara'],['texas', 'harris'], ['new york', 'kings'], ['arizona', 'maricopa'], ['virginia', 'fairfax'], ['california', 'orange'], ['texas', 'travis'], ['minnesota', 'hennepin'], ['new york', 'westchester'], ['texas', 'dallas']],
+      sum: 0
+    },
+    republicans: {
+      count: [['california', 'los angeles'],['texas', 'harris'], ['arizona', 'maricopa'], ['california', 'orange'], ['california', 'san diego'], ['virginia', 'fairfax'], ['new york', 'new york'], ['illinois', 'cook'], ['connecticut', 'fairfield'], ['texas', 'dallas'], ['utah', 'salt lake'],['georgia', 'fulton'], ['florida', 'palm beach'], ['utah', 'utah'],['washington', 'king'], ['michigan', 'oakland'],['massachusetts', 'middlesex'], ['nevada', 'clark'], ['florida', 'miami-dade'], ['maryland', 'montgomery']],
+      sum: 0
+    }
+  };
+
+  $scope.formatCountyName = function(description, index) {
+    index++;
+    return index + '. ' + description.reduce(function(accum, word, index) {
+      if (word == 'of') {
+        accum.push(word);
+        return accum;
+      }
+
+      word = word.substring(0,1).toUpperCase() + word.substring(1);
+      if (index == 0) {
+        word += ', '; 
+      }
+      accum.push(word);
+      return accum;
+    }, []).join(' ');
+
+    /**
+     * State contributions
+     */
+  };
+  $timeout(function() {
+
+    function getTooltip(d){ /* function to create html content string in tooltip div. */
+      var states = d.data.states;
+      height = states.length * 28 + 40;
+      height = height < 400 ? 400 : height;
+      var tooltipData = "<div style='background:rgba(0,0,0,0.2);border-radius:0px;width:300px;height:" + height + "px;padding:0px;border-radius:0px;'><div style='padding:20px;'>" + 
+      "<h3 style='font-family:RobotoDraft; color:rgb(255,64,129);font-size:30px;padding:5px;width:100%'>"+ (d.data.percent * 100).toFixed(2) + '%' +"</h3>"; 
+      
+      for (var i = 0; i < states.length; i++) {
+        var name = states[i].substring(0, 1).toUpperCase() + states[i].substring(1);
+        tooltipData = tooltipData + "<div style='font-family:RobotoDraft;color:black;font-size:20px;'>" + name + "</div>"; 
+      }
+      // "<div style='font-family:Lato;color:black;font-size:20px;'>R-squared - " + "<span style='font-family:circular;color:black;font-size:20px;'>" + (d.r_squared) + "</span></div>" + 
+      // "<div style='font-family:Lato;color:black;font-size:20px;'>Performance - " + "<span style='font-family:circular;color:black;font-size:20px;'>" + (d.performance) + "</span></div>" + 
+      // "</table></div>";
+      
+      return tooltipData + "</div></div>";
+    }
+    var width = 960,
+    height = 500,
+    radius = Math.min(width, height) / 2;
+
+    var arc = d3.svg.arc()
+        .outerRadius(radius - 10)
+        .innerRadius(0);
+
+    var pie = d3.layout.pie()
+        .sort(null)
+        .value(function(d) {
+          return  d.percent * 100; 
+        });
+    var colors = [['#F44336','#FFCDD2'], ['#00BCD4','#B2EBF2'], ['#009688', '#B2DFDB'],['#FFEB3B','#FFF9C4']];
+    var svg = d3.select("#statecontributions").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+      .append("g")
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+    var stateContributions = [{'states': ['california', 'illinois', 'texas', 'new york', 'florida', 'massachusetts'], 'percent': 0.51028471133206421}, {'states': ['virginia', 'pennsylvania', 'maryland', 'new jersey', 'washington', 'georgia', 'ohio', 'colorado', 'michigan', 'north carolina'], 'percent': 0.24867052205744031}, {'states': ['connecticut', 'district of columbia', 'arizona', 'tennessee', 'minnesota', 'missouri', 'utah', 'oregon', 'wisconsin', 'louisiana'], 'percent': 0.13221005285822571}, {'states': ['indiana', 'oklahoma', 'nevada', 'south carolina', 'alabama', 'kentucky', 'new mexico', 'iowa', 'kansas', 'new hampshire', 'mississippi', 'idaho', 'arkansas', 'maine', 'nebraska', 'hawaii', 'vermont', 'montana', 'wyoming', 'alaska', 'rhode island', 'west virginia', 'delaware', 'south dakota', 'north dakota'], 'percent': 0.10883471375226984}];
+    var g = svg.selectAll(".arc")
+      .data(pie(stateContributions))
+      .enter().append("g")
+        .attr("class", "arc");
+    g.append("path")
+      .attr("d", arc)
+      .attr('id', function(d, i) {
+        return 'states-' + i;
+      })
+      .style("fill", function(d,i) { 
+        return colors[i][0];
+      })
+      .on('mouseover', function(d,i) {
+        d3.select('#states-' + i).style('fill', colors[i][1]);
+        d3.select("#tooltip").transition().duration(200).style("opacity", .9);      
+        var coordinates = d3.mouse(this);
+        d3.select("#tooltip").html(getTooltip(d))
+        .style("left", coordinates[0] + (width / 2) + "px")     
+        .style("top", coordinates[1] + (height / 2) + "px");
+      })
+      .on('mouseout', function(d,i) {
+        d3.select('#states-' + i).style('fill', colors[i][0]);
+        d3.select("#tooltip").transition().duration(500).style("opacity", 0); 
+      });
+    g.append("text")
+      .attr("transform", function(d) { 
+        var t = arc.centroid(d);
+        return "translate(" + t[0]*1.2 +"," + t[1]*1.2 + ")";
+      })
+      .attr("dy", ".35em")
+      .style("text-anchor", "middle")
+      .style('font-family', 'RobotoDraft')
+      .style('font-size', '20px')
+      .style('weight', 'normal')
+      .text(function(d) { 
+        return d.data.states.length + ' states';
+      })
+      .on('mouseover', function(d,i) {
+        d3.select('#states-' + i).style('fill', colors[i][1]);
+      })
+      .on('mouseout', function(d,i) {
+        d3.select('#states-' + i).style('fill', colors[i][0]);
+      });
+  }, 1000);
+
+  
 
   }]);

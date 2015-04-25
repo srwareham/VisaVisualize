@@ -147,3 +147,19 @@ body {
 .md-select {
 	margin-top: 0px !important; 
 }
+
+ng-md-icon {
+  display: inline-block;
+  width: 60px;
+  height: 60px;
+  float: right;
+  position: relative;
+  right: 20px;
+  bottom: 6px;
+  fill: #FF4081;
+}
+
+ng-md-icon:hover { 
+	cursor: pointer;
+	fill: #F48FB1;
+}
