@@ -29,11 +29,14 @@ def run_county_statistics_examples(num_buckets=4):
 
 	#counts, bins = np.histogram(get_population_series(county_statistics))	
 	serie = get_population_series(county_statistics)
-	bins = get_bins(serie, num_buckets)
-	counts, division = np.histogram(serie, bins = bins)
-	print pd.Series(counts, index=division[:-1])
-	#serie.hist(bins=division)
+	#bins = get_bins(serie, num_buckets)
+	#counts, division = np.histogram(serie, bins = bins)
+	#print pd.Series(counts, index=division[:-1])
 
+	print population_counts = serie.groupby(pd.cut(serie,num_buckets)).count()
+	
+	print serie.value_counts(normalize=True, bins=num_buckets)
+	
 def main():
 	run_county_statistics_examples()
 
