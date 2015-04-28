@@ -4,19 +4,10 @@ import os
 import json
 from flask.ext.restful.reqparse import RequestParser
 from flask import jsonify
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+from context import campaignadvisor
 
-MAP_DATA_PATH = os.path.abspath(__file__ + "/../../static/mapdata")
-def open_pickle(path):
-	path = MAP_DATA_PATH + '/' + path
-	print path
-	with open(path, 'rb') as pickle_file:
-		return pickle.load(pickle_file)
-
-county_statistics = open_pickle('county_statistics.pik')
+county_statistics_name = campaignadvisor.dataframe_holder.COUNTY_STATISTICS
+county_statistics = campaignadvisor.dataframe_holder.get_dataframe(county_statistics_name)
 @app.route('/')
 
 def root():
@@ -50,6 +41,7 @@ def get_county_statistics():
 						min_value=min_value)
 	except:
 		return 'Column does not exist'
-	return 'success', 200
+    # Unreachable code
+	#return 'success', 200
 
 
