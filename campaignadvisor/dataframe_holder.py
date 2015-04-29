@@ -295,6 +295,7 @@ def _create_county_contributions():
             return 0
 
     temp = 'temp'
+    county_contributions[temp] = county_contributions.index
     county_contributions[DEM_CONTRIBUTIONS_COUNT] = county_contributions[temp].apply(get_dem_contributions_count)
     county_contributions[GOP_CONTRIBUTIONS_COUNT] = county_contributions[temp].apply(get_gop_contributions_count)
     county_contributions[DEM_CONTRIBUTIONS_SUM] = county_contributions[temp].apply(get_dem_contributions_sum)

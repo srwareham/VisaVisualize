@@ -116,7 +116,7 @@ def main():
     #df_cs['Test_Max'] = df_cs[features_to_test].max(axis=1)
 
     # pickling
-    path = 'this_pickle'
+    path = 'county_statistics.pik'
     df_cs.index = df['clean_fips']
     with open(path, 'wb') as file_out:
         pickle.dump(df_cs, file_out)
