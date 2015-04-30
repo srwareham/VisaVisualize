@@ -393,8 +393,8 @@ def _create_map_data():
     def _get_normalized_pop(pop):
         return (pop - lower) / (upper - lower)
 
-    inds = [i / 100.0 for i in range(0, 100, 10)]
-    bins = [populations.quantile(i / 100.0) for i in range(5, 100, 10)]
+    inds = [i / 100.0 for i in range(10, 110, 10)]
+    bins = [populations.quantile(i / 100.0) for i in range(0, 110, 10)]
 
     def get_normalized_pop(pop):
         for i in range(0, len(bins) - 1):
@@ -402,6 +402,7 @@ def _create_map_data():
             next = bins[i+1]
             if bin < pop < next:
                 return inds[i]
+        return .99
 
 
     county_statistics['normalized_population'] = county_statistics['TotalPopEst2013'].apply(get_normalized_pop)
