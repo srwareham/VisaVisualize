@@ -10,7 +10,7 @@ angular.module('CampaignAdvisor')
       	url: '/api/getCountyStatisticsColumns'
       }
     });
-    var PERCENTAGE_DATA = ['percent', 'Pct', 'pct', 'percentage', 'Change'];
+    var PERCENTAGE_DATA = ['percent', 'Pct', 'pct', 'percentage', 'Change', 'normalized'];
   	countyDataService.getData = function(columnName) {
   		return countyStatisticsResource.getCountyStatistics({ data_column: columnName}).$promise.then(function (countyData) {
   			return countyDataService.normalizeData(columnName, countyData);
