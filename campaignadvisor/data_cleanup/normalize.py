@@ -68,14 +68,16 @@ def test_normalize(df, features, alg):
     return df_scaled
 
 def main():
-    jobs_name = campaignadvisor.dataframe_holder.JOBS
-    votes_name = campaignadvisor.dataframe_holder.VOTES
-    jobs = campaignadvisor.dataframe_holder.get_dataframe(jobs_name)
-    votes = campaignadvisor.dataframe_holder.get_dataframe(votes_name)
-    votes['clean_fips'] = votes['fips_code']
-
+    #jobs_name = campaignadvisor.dataframe_holder.JOBS
+    #votes_name = campaignadvisor.dataframe_holder.VOTES
+    #jobs = campaignadvisor.dataframe_holder.get_dataframe(jobs_name)
+    #votes = campaignadvisor.dataframe_holder.get_dataframe(votes_name)
+    #votes['clean_fips'] = votes['fips_code']
+    
     # country statistics dataframes
-    df = pd.merge(votes, jobs, on='clean_fips', sort=False, how="inner")
+    # df = pd.merge(votes, jobs, on='clean_fips', sort=False, how="inner")
+    df_name = campaignadvisor.dataframe_holder.COUNTY_STATISTICS
+    df = campaignadvisor.dataframe_holder.get_dataframe(df_name)
 
     # get feature list from county statistics
     features_to_drop = ['clean_fps', 'fips_code', 'FIPS', 'State', 'County', 'winner_name', 'winner_party']
@@ -102,7 +104,7 @@ def main():
 
     # testing
     print "-------ALG CHECK TEST-------"
-    print test_normalize(df, features_to_scale, alg=n_alg)
+    #print test_normalize(df, features_to_scale, alg=n_alg)
 
     print "--------MIN MAX TEST--------"
     features_to_test = list()
@@ -117,7 +119,7 @@ def main():
 
     # pickling
     path = 'county_statistics.pik'
-    df_cs.index = df['clean_fips']
+    df['clean_fips'] = df_cs.index
     with open(path, 'wb') as file_out:
         pickle.dump(df_cs, file_out)
 

@@ -3,18 +3,15 @@ import pandas as pd
 from context import campaignadvisor
 
 """
-Contribution classification by population size
->> how much - what is the contribution in percentage
-e.g.
-counties with sizes 25000 - 40000 is 15%
-4 buckets: quartile percentage sizes
+Contribution classification by quartile population size buckets
 """
 
 def get_state_county(fips_code):
     return campaignadvisor.data_cleanup.get_state_county_from_fips(fips_code)
 
 def get_population_series(county_statistics):
-	return county_statistics['CivPop18ONum']
+	#return county_statistics['CivPop18ONum']
+	return county_statistics['TotalPopEst2013']
 
 def get_bins(serie, num_buckets):
 	bucket_size = (serie.max()-serie.min())/num_buckets
@@ -33,9 +30,11 @@ def run_county_statistics_examples(num_buckets=4):
 	#counts, division = np.histogram(serie, bins = bins)
 	#print pd.Series(counts, index=division[:-1])
 
-	print population_counts = serie.groupby(pd.cut(serie,num_buckets)).count()
-	
-	print serie.value_counts(normalize=True, bins=num_buckets)
+	print serie.groupby(pd.cut(serie,num_buckets)).count()
+
+	# percentages
+	serie_pct = serie.value_counts(normalize=True, bins=num_buckets)
+	print serie_pct
 	
 def main():
 	run_county_statistics_examples()
