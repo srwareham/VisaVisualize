@@ -125,3 +125,7 @@ md-whiteframe.whiteframe-contributors md-content.md-padding {
 #tooltip tr td:nth-child(2){
   text-align:center;
   }
+
+.currentDataBg {
+  background: #ccc !important;
+}

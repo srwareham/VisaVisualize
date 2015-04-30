@@ -4,16 +4,17 @@ angular.module('CampaignAdvisor')
   	drawMap.setGeojson(stateLines, countyLines);
     drawMap.drawStates(1);
     drawMap.drawStates(2);
+
     var stateFips = ["10", "11", "12", "13", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "44", "45", "46", "47", "48", "49", "50", "51", "53", "54", "55", "56", "01", "02", "04", "05", "06", "08", "09"];
     $scope.nextPage = function(next) {
       $location.url(next);
     };
     $scope.mapState = {
       1: {
-        state: 'Show'
+        state: false
       },
       2: {
-        state: 'Show'
+        state: false
       }
     };
 	     
@@ -52,16 +53,36 @@ angular.module('CampaignAdvisor')
         return (state.value.indexOf(lowercaseQuery) === 0);
       };
     }
-    $scope.drawAllCounties = function(mapNumber) {
-      if ($scope.mapState[mapNumber].state == 'Show') {
+    $scope.drawAllCounties = function(mapNumber, state) {
+      if (state) {
         drawMap.drawAllCounties(mapNumber);
-        $scope.mapState[mapNumber].state = 'Hide';
+        $scope.mapState[mapNumber].state = state;
       } else {
+        console.log('removing');
         drawMap.removeAllCounties(mapNumber);
-        $scope.mapState[mapNumber].state = 'Show';
+        $scope.mapState[mapNumber].state = state;
       }
     }
-    //$scope.drawAllCounties();
+   // $scope.drawAllCounties(1);
+   // $scope.drawAllCounties(2);
+   // 
+   $scope.$watch('mapState[1].state', function() {
+    if ($scope.mapState[1].state) {
+      $scope.drawAllCounties(1, true);
+    } else {
+      $scope.drawAllCounties(1, false);
+    }
+   });
+
+   $scope.$watch('mapState[2].state', function() {
+    if ($scope.mapState[2].state) {
+      if ($scope.mapState[2].state) {
+        $scope.drawAllCounties(2, true);
+      } else {
+        $scope.drawAllCounties(2, false);
+      }
+    }
+   });
 
     $scope.loadDataPoints = function() {
     // Use timeout to simulate a 650ms request.

@@ -6,8 +6,8 @@ from flask.ext.restful.reqparse import RequestParser
 from flask import jsonify
 from context import campaignadvisor
 
-county_statistics_name = campaignadvisor.dataframe_holder.COUNTY_STATISTICS
-county_statistics = campaignadvisor.dataframe_holder.get_dataframe(county_statistics_name)
+map_data_name = campaignadvisor.dataframe_holder.MAP_DATA
+map_data = campaignadvisor.dataframe_holder.get_dataframe(map_data_name)
 @app.route('/')
 
 def root():
@@ -15,7 +15,7 @@ def root():
 
 @app.route('/api/getCountyStatisticsColumns', methods=['GET'])
 def get_county_statistics_column():
-	return jsonify(data_points=list(county_statistics.columns)), 200
+	return jsonify(data_points=list(map_data.columns)), 200
 
 @app.route('/api/getCountyLines', methods=['GET'])
 def get_county_lines():
@@ -32,7 +32,7 @@ def get_county_statistics():
 						help='Data column is needed.')
 	args = parser.parse_args()
 	try:
-		series_needed = county_statistics[args.data_column]
+		series_needed = map_data[args.data_column]
 		max_value = series_needed.max()
 		min_value = series_needed.min()
 		json_doc = json.loads(series_needed.to_json())

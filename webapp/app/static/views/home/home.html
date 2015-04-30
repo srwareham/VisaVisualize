@@ -14,9 +14,13 @@
 					<span class="state-header">{{ drawMap.currentArea[2] }}</span>
 				</div>
 				<div class="row">
-					<div class="col-md-6 button-row">
-						<md-button class="md-raised map-button md-accent" ng-click="mapZoomOut(2)">Zoom out</md-button>
-						<md-button class="md-raised map-button md-accent" ng-click="drawAllCounties(2)">{{mapState[2].state}} all counties</md-button>
+					<div class="col-md-offset-1 col-md-3 button-row">
+						<md-checkbox ng-model="mapState[2].state" aria-label="Show Map">
+							<span class="show-header">Show Map</span>
+						</md-checkbox>
+					</div>
+					<div class="col-md-2 button-row">
+						<ng-md-icon icon="remove_circle_outline" ng-click="mapZoomOut(2)"></ng-md-icon> 
 					</div>
 					<div class="col-md-6">
 						<md-select ng-model="dataPoint2"  class="md-accent" md-on-open="loadDataPoints()" style="min-width: 200px;">
@@ -35,9 +39,13 @@
 					<span class="state-header">{{ drawMap.currentArea[1] }}</span>
 				</div>
 				<div class="row">
-					<div class="col-md-6 button-row">
-						<md-button class="md-raised map-button" ng-click="mapZoomOut(1)">Zoom out</md-button>
-						<md-button class="md-raised map-button" ng-click="drawAllCounties(1)">{{mapState[1].state}} all counties</md-button>
+					<div class="col-md-offset-1 col-md-3 button-row">
+						<md-checkbox ng-model="mapState[1].state" aria-label="Show Map">
+							<span class="show-header">Show Map</span>
+						</md-checkbox>
+					</div>
+					<div class="col-md-2 button-row">
+						<ng-md-icon icon="remove_circle_outline" ng-click="mapZoomOut(1)"></ng-md-icon> 
 					</div>
 					<div class="col-md-6">
 						<md-select ng-model="dataPoint" class="md-accent" md-on-open="loadDataPoints()" style="min-width: 200px;">

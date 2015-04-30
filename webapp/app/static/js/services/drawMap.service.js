@@ -29,7 +29,7 @@ angular.module('CampaignAdvisor')
 
 	// };
 	function createColorScale(min, max, minimumColor, maximumColor) {
-		return d3.scale.linear().domain([min, max]).range([minimumColor, maximumColor]);
+		return d3.scale.linear().domain([min, 0,  max]).range([minimumColor, d3.rgb('white'), maximumColor]);
 	}
 	drawMapService.currentArea =  {}
 
@@ -138,7 +138,6 @@ angular.module('CampaignAdvisor')
       	.on('mouseover', function(d) {
 			var countyName = d.properties.NAME;
 			var label = state + ', ' + countyName;
-
 			var dataForFips = getDataFromFips(d.properties.STATE + d.properties.COUNTY, mapNumber);
 			label = dataForFips ? label + ': ' + dataForFips : label;
 			drawMapService.setCurrentArea(label, mapNumber);
@@ -149,7 +148,7 @@ angular.module('CampaignAdvisor')
 	function getDataFromFips(fips, mapNumber) {
 		if (!currentData[mapNumber]) return '';
 		if (currentData[mapNumber].countyData && currentData[mapNumber].countyData[fips]) {
-			return currentData[mapNumber].countyData[fips];
+			return currentData[mapNumber].countyData[fips].toFixed(2);
 		}
 		return '';
 	}
@@ -315,7 +314,7 @@ angular.module('CampaignAdvisor')
 		var countyFips = stateCountyFips[stateFips];
 		var min = countyData.min;
 		var max = countyData.max;
-		var colorScale = createColorScale(countyData.min, countyData.max, d3.rgb('white'), d3.rgb('blue').brighter(100));
+		var colorScale = createColorScale(countyData.min, countyData.max, d3.rgb('red').brighter(100), d3.rgb('blue').brighter(100));
 		
 		countyData = countyData.countyData;
 		if (!countyFips) return;
