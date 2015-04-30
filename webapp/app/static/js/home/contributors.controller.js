@@ -7,7 +7,7 @@ angular.module('CampaignAdvisor')
     $scope.nextPage = function(goTo) {
       $location.url(goTo);
     };
-    var tabTitles = ['Contribution by Occupation', 'Contribution by County', 'Contribution by State', 'Do your contributions matter?']
+    var tabTitles = ['Contribution by Occupation', 'Contribution by County', 'Contribution by State', 'Contribution by County Size']
     $scope.$watch('selectedIndex', function() {
       if ($scope.selectedIndex != -1) {
         $scope.changeHeader(tabTitles[$scope.selectedIndex]);
@@ -131,11 +131,11 @@ angular.module('CampaignAdvisor')
       accum.push(word);
       return accum;
     }, []).join(' ');
-
-    /**
-     * State contributions
-     */
   };
+
+  /**
+   * State contributions
+   */
   $timeout(function() {
 
     function getTooltip(d){ /* function to create html content string in tooltip div. */
@@ -219,7 +219,122 @@ angular.module('CampaignAdvisor')
         d3.select('#states-' + i).style('fill', colors[i][0]);
       });
   }, 1000);
+/**
+   * State contributions
+   */
+  $timeout(function() {
+    var width = 960,
+    height = 500,
+    radius = Math.min(width, height) / 2;
 
-  
+    var arc = d3.svg.arc()
+        .outerRadius(radius - 10)
+        .innerRadius(0);
+
+    var pie = d3.layout.pie()
+        .sort(null)
+        .value(function(d) {
+          return  d.value; 
+        });
+    var colors = ['#3366CC', '#DC3912', '#FF9900', '#109618', '#990099'];
+    var svg = d3.select("#county-contributions-size").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .style('padding-top','80px')
+        .style('padding-bottom', '80px')
+      .append("g")
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+    var countyContributions = [{
+      type: 'Huge',
+      count: 80,
+      value: 51.2,
+      distance: 2.5,
+      index: 0
+    }, {
+      type: 'Large',
+      count: 406,
+      value: 37.4,
+      distance: 2.6,
+      index: 1
+    }, {
+      type: 'Medium',
+      count: 470,
+      value: 6.1,
+      distance: 2.3,
+      index: 2
+    }, {
+      type: 'Small',
+      count: 1856,
+      value: 5.2,
+      distance: 2.3,
+      index: 3
+    }, {
+      type: 'Tiny',
+      count: 310,
+      value: 0.1,
+      distance: 2.1,
+      index: 4
+    }];
+    var g = svg.selectAll(".arc")
+      .data(pie(countyContributions))
+      .enter().append("g")
+        .attr("class", "arc");
+    g.append("path")
+      .attr("d", arc)
+      .attr('id', function(d, i) {
+        return 'states-' + i;
+      })
+      .style("fill", function(d,i) { 
+        return colors[i];
+      })
+      .on('mouseover', function(d, i) {
+        angular.element('#' + d.data.type + 'County').css('background-color', '#ccc');
+      })
+      .on('mouseout', function(d) {
+        angular.element('#' + d.data.type + 'County').css('background-color', 'white');
+      })
+    g.append("text")
+      .attr("transform", function(d) { 
+        var t = arc.centroid(d);
+        if (d.data.type == 'Huge') {
+          return "translate(" + t[0]*(d.data.distance - 1) +"," + t[1]*(d.data.distance + 50) + ")";
+        }
+        return "translate(" + t[0]*d.data.distance +"," + t[1]*d.data.distance + ")";
+      })
+      .on('mouseover', function(d, i) {
+        $scope.currentCountyData = d.data;
+      })
+      .attr("dy", ".35em")
+      .style("text-anchor", "middle")
+      .style('font-family', 'RobotoDraft')
+      .style('font-size', '15px')
+      .style('weight', 'normal')
+      .text(function(d) { 
+        return d.data.count + ' ' + d.data.type + ' counties';
+      })
+      .on('mouseover', function(d, i) {
+        angular.element('#' + d.data.type + 'County').css('background-color', '#ccc');
+      })
+      .on('mouseout', function(d) {
+        angular.element('#' + d.data.type + 'County').css('background-color', 'white');
+      })
+  }, 1000);
+
+  $scope.sizeData = [{
+    type: 'Huge',
+    text: '691487+'
+  }, {
+    type: 'Large',
+    text: '10000 - 691487'
+  }, {
+    type: 'Medium',
+    text: '50000 - 100000'
+  }, {
+    type: 'Small',
+    text: '4078 - 50000'
+  }, {
+    type: 'Tiny',
+    text: '1 - 4078'
+  }];
 
   }]);

@@ -57,9 +57,30 @@
 
         </md-content>
       </md-tab>
-      <md-tab label="Do your contributions matter?">
+      <md-tab label="Contribution by County Size">
         <md-content class="md-padding">
-          <p>lalala2</p>
+          <div class="row">
+            <div class="col-md-6">
+             <p id="county-contributions-size" style="padding-top:60px;">
+            </div>
+            <div class="col-md-3">
+              <md-whiteframe class="md-whiteframe-z1 whiteframe-contributors" layout layout-align="center center" style="margin-top:200px;text-align:center;">
+                <md-content class="md-padding">
+                  <md-list>
+                    <md-subheader class="md-no-sticky md-accent contrib-header">County Size Bins</md-subheader>
+                    <md-list-item class="md-3-line" ng-repeat="size in sizeData track by $index">
+                      <div class="md-list-item-text contrib-item-text">
+                        <h3 style='margin:0px;padding:15px;' id="{{size.type}}County"><b>{{ size.type }}</b>: {{ size.text}}</h3>
+                      </div><md-divider ></md-divider>
+                    </md-list-item>
+                  </md-list>
+                </md-content>
+              </md-whiteframe>
+            </div>
+          </div>
+          
+         
+          </p>
         </md-content>
       </md-tab>
     </md-tabs>
