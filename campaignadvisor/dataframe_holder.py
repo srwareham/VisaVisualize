@@ -30,6 +30,7 @@ VETERANS = "veterans"
 CONTRIBUTIONS = "contributions"
 COUNTY_CONTRIBUTIONS = 'county_contributions'
 COUNTY_STATISTICS = "county_statistics"
+MAP_DATA = "map_data"
 
 # Serialized version names
 VOTES_SERIALIZED_NAME = "votes.pik"
@@ -40,6 +41,7 @@ VETERANS_SERIALIZED_NAME = "veterans.pik"
 CONTRIBUTIONS_SERIALIZED_NAME = "contributions.pik"
 COUNTY_CONTRIBUTIONS_SERIALIZED_NAME = "county_contributions.pik"
 COUNTY_STATISTICS_SERIALIZED_NAME = "county_statistics.pik"
+MAP_DATA_SERIALIZED_NAME = "map_data.pik"
 
 
 # Resource names
@@ -366,6 +368,49 @@ def _create_county_statistics():
     return county_statistics
 
 
+def _create_map_data():
+    county_statistics = get_dataframe(COUNTY_STATISTICS)
+    county_statistics['clean_fips'] = county_statistics.index
+
+    def do_keep(fips):
+        if len(fips) != 5:
+            return False
+        elif fips[-3:] == "000":
+            return False
+        return True
+    county_statistics['do_keep'] = county_statistics['clean_fips'].apply(do_keep)
+    # Keep only ones we want to keep
+    county_statistics = county_statistics[county_statistics['do_keep']]
+
+
+    percentages = [str(column_name) for column_name in county_statistics.columns if "Pct" in str(column_name)]
+    rates = [str(column_name) for column_name in county_statistics.columns if "Rate" in str(column_name)]
+
+    populations = county_statistics['TotalPopEst2013']
+    lower = populations.quantile(.04)
+    upper = populations.quantile(.88)
+
+    def _get_normalized_pop(pop):
+        return (pop - lower) / (upper - lower)
+
+    inds = [i / 100.0 for i in range(0, 100, 10)]
+    bins = [populations.quantile(i / 100.0) for i in range(5, 100, 10)]
+
+    def get_normalized_pop(pop):
+        for i in range(0, len(bins) - 1):
+            bin = bins[i]
+            next = bins[i+1]
+            if bin < pop < next:
+                return inds[i]
+
+
+    county_statistics['normalized_population'] = county_statistics['TotalPopEst2013'].apply(get_normalized_pop)
+    customs = ['contributions_per_capita', 'percent_vote_dem', 'percent_vote_gop', 'normalized_population']
+    to_keep = customs + percentages + rates
+    map_data = county_statistics[to_keep].copy()
+    return map_data
+
+
 def _save_pickle(data, path):
     if not os.path.exists(os.path.dirname(path)):
         os.makedirs(os.path.dirname(path))
@@ -392,7 +437,8 @@ def _get_data_frames():
         DataFrameWrapper(VETERANS, VETERANS_SERIALIZED_NAME, _create_veterans),
         DataFrameWrapper(VOTES, VOTES_SERIALIZED_NAME, data_cleanup.vote_holder.get_county_dataframe),
         DataFrameWrapper(COUNTY_CONTRIBUTIONS, COUNTY_CONTRIBUTIONS_SERIALIZED_NAME, _create_county_contributions),
-        DataFrameWrapper(COUNTY_STATISTICS, COUNTY_STATISTICS_SERIALIZED_NAME, _create_county_statistics)
+        DataFrameWrapper(COUNTY_STATISTICS, COUNTY_STATISTICS_SERIALIZED_NAME, _create_county_statistics),
+        DataFrameWrapper(MAP_DATA, MAP_DATA_SERIALIZED_NAME, _create_map_data)
     ]
 
     dfs = {}
@@ -432,11 +478,12 @@ def get_dataframe(name):
 
 
 def debug():
-    df = get_dataframe(COUNTY_STATISTICS)
+    # df = get_dataframe(COUNTY_STATISTICS)
+    df = _create_map_data()
     print df.head(30)
-    print len(df)
-    print df.index
-    print list(df.columns)
+    #print len(df)
+    #print df.index
+    #print list(df.columns)
 
 
 if __name__ == "__main__":
