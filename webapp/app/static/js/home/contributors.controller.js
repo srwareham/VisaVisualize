@@ -7,6 +7,8 @@ angular.module('CampaignAdvisor')
     $scope.nextPage = function(goTo) {
       $location.url(goTo);
     };
+
+    $scope.rankStatesPerCap = ['district of columbia', 'illinois', 'massachusetts', 'connecticut', 'vermont', 'maryland', 'wyoming', 'colorado', 'virginia', 'utah'];
     var tabTitles = ['Contribution by Occupation', 'Contribution by County', 'Contribution by State', 'Contribution by County Size']
     $scope.$watch('selectedIndex', function() {
       if ($scope.selectedIndex != -1) {
@@ -116,21 +118,12 @@ angular.module('CampaignAdvisor')
     }
   };
 
-  $scope.formatCountyName = function(description, index) {
-    index++;
-    return index + '. ' + description.reduce(function(accum, word, index) {
-      if (word == 'of') {
-        accum.push(word);
-        return accum;
-      }
-
-      word = word.substring(0,1).toUpperCase() + word.substring(1);
-      if (index == 0) {
-        word += ', '; 
-      }
-      accum.push(word);
-      return accum;
-    }, []).join(' ');
+  $scope.formatStateName = function(description, index) {
+    var original = description.split(' ');
+    return (index + 1)  + '. ' + original.map(function(v) {
+      if (v == 'of') return v;
+      return v.substring(0,1).toUpperCase() + v.substring(1);
+    }).join(' ');
   };
 
   /**
@@ -172,6 +165,7 @@ angular.module('CampaignAdvisor')
     var svg = d3.select("#statecontributions").append("svg")
         .attr("width", width)
         .attr("height", height)
+        .style('padding-bottom', '100px')
       .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
     var stateContributions = [{'states': ['california', 'illinois', 'texas', 'new york', 'florida', 'massachusetts'], 'percent': 0.51028471133206421}, {'states': ['virginia', 'pennsylvania', 'maryland', 'new jersey', 'washington', 'georgia', 'ohio', 'colorado', 'michigan', 'north carolina'], 'percent': 0.24867052205744031}, {'states': ['connecticut', 'district of columbia', 'arizona', 'tennessee', 'minnesota', 'missouri', 'utah', 'oregon', 'wisconsin', 'louisiana'], 'percent': 0.13221005285822571}, {'states': ['indiana', 'oklahoma', 'nevada', 'south carolina', 'alabama', 'kentucky', 'new mexico', 'iowa', 'kansas', 'new hampshire', 'mississippi', 'idaho', 'arkansas', 'maine', 'nebraska', 'hawaii', 'vermont', 'montana', 'wyoming', 'alaska', 'rhode island', 'west virginia', 'delaware', 'south dakota', 'north dakota'], 'percent': 0.10883471375226984}];
@@ -224,7 +218,7 @@ angular.module('CampaignAdvisor')
    */
   $timeout(function() {
     var width = 960,
-    height = 500,
+    height = 600,
     radius = Math.min(width, height) / 2;
 
     var arc = d3.svg.arc()

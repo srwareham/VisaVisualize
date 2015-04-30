@@ -19,14 +19,17 @@
 							<span class="show-header">Show Map</span>
 						</md-checkbox>
 					</div>
-					<div class="col-md-2 button-row">
-						<ng-md-icon icon="remove_circle_outline" ng-click="mapZoomOut(2)"></ng-md-icon> 
-					</div>
-					<div class="col-md-6">
+					<div class="col-md-3">
 						<md-select ng-model="dataPoint2"  class="md-accent" md-on-open="loadDataPoints()" style="min-width: 200px;">
 						<md-select-label class="md-accent">{{ dataPoint2 }}</md-select-label>
 							<md-option class="md-accent" ng-value="dataPoint" ng-repeat="dataPoint in dataPoints">{{ dataPoint }}</md-option>
 						</md-select>
+					</div>
+					<div class="col-md-2 button-row">
+						<ng-md-icon  style="width:30px;height:30px" icon="remove_circle_outline" class="lol" ng-click="mapZoomOut(2)">
+						
+							
+						</ng-md-icon> 
 					</div>
 				</div>
 				<div id="stateContainer2">
@@ -43,15 +46,19 @@
 						<md-checkbox ng-model="mapState[1].state" aria-label="Show Map">
 							<span class="show-header">Show Map</span>
 						</md-checkbox>
+
 					</div>
-					<div class="col-md-2 button-row">
-						<ng-md-icon icon="remove_circle_outline" ng-click="mapZoomOut(1)"></ng-md-icon> 
-					</div>
-					<div class="col-md-6">
+					<div class="col-md-3">
 						<md-select ng-model="dataPoint" class="md-accent" md-on-open="loadDataPoints()" style="min-width: 200px;">
 						<md-select-label class="md-accent" >{{ dataPoint }}</md-select-label>
 							<md-option class="md-accent" ng-value="dataPoint" ng-repeat="dataPoint in dataPoints">{{ dataPoint }}</md-option>
 						</md-select>
+					</div>
+					<div class="col-md-2 button-row">
+						<ng-md-icon  style="width:30px;height:30px" icon="remove_circle_outline" class="lol" ng-click="mapZoomOut(1)">
+						
+							
+						</ng-md-icon> 
 					</div>
 				</div>
 				<div id="stateContainer1">

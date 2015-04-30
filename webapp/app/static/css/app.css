@@ -167,3 +167,20 @@ ng-md-icon:hover {
 	cursor: pointer;
 	fill: #F48FB1;
 }
+
+.camp-p {
+	font-family: RobotoDraft;
+	font-size: 25px;
+	font-weight: lighter;
+}
+h3.camp-p {
+	font-family: RobotoDraft;
+	font-size: 30px;
+	font-weight: 900;
+}
+span.heavy {
+	font-weight: 900;
+}
+.lol svg {
+	margin-top: 20px;
+}

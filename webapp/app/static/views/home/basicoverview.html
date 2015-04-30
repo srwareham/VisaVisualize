@@ -9,18 +9,135 @@
     <md-tabs md-selected="selectedIndex" md-dynamic-height md-border-bottom>
       <md-tab label="Analyzing voter interaction with presidential elections">
         <md-content class="md-padding">
-          <p id="topcontributors">
-          </p>
+          <div class="row">
+            <div class="col-md-offset-1 col-md-6">
+              <h3 class="camp-p">
+                What we wanted to do:
+              </h3>
+              <p class="camp-p">
+                Find out how Americans interact with <span class="heavy">voting</span> and <span class="heavy">$</span>.
+              </p>
+              <h3 class="camp-p">
+                Why:
+              </h3>
+              <p class="camp-p">
+                The landscape of presidential campaigning is changing rapidly changing.
+              </p>
+
+              <p class="camp-p">
+                All about money and marketing
+              </p>
+              <p class="camp-p">
+                Candidates are very much being “sold”
+              </p>
+              
+
+
+
+
+            </div>
+            <div class="col-md-5">
+              <img style="padding-top:100px;" src="http://www.killthehydra.com/wp-content/uploads/rich-mitt-romney-meme-funny-political-100-million-dollars1.jpg" alt="">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-offset-1 col-md-11">
+              <h3 class="camp-p">
+How is it being done, and how is it working? Who do they target and how do they respond?
+                
+              </h3>
+            </div>
+          </div>
+
         </md-content>
       </md-tab>
       <md-tab label="Data sets and tools">
         <md-content class="md-padding">
-          <p>lalala</p>
+          <div class="row">
+            <div class="col-md-offset-1 col-md-5">
+              <h3 class="camp-p">
+                3 Main Data Sets
+              </h3>
+              <p class="camp-p">
+                The Federal Election Committee database of campaign contribution disclosures
+              </p>
+              <p class="camp-p">
+                The Guardian’s election results aggregated by county
+              </p>
+              <p class="camp-p">
+                The USDA's Economic Research Service‘s 2012 us Rural Atlas on county demographic
+              </p>
+              <h3 class="camp-p">
+                2 Joined Data sets
+              </h3>
+              <p class="camp-p">
+                The U.S. Postal Service’s listing of ZIP codes
+              </p>
+              <p class="camp-p">
+                The Census Bureau’s listing of American counties
+              </p>
+
+
+
+            </div>
+            <div class="col-md-6">
+              <h3 class="camp-p">
+                Tools
+              </h3>
+                <img src="http://mgcrea.github.io/angular-7min/images/angularjs.png" alt="" style="width:160px">
+                <img src="http://flask.pocoo.org/static/logo/flask.png" alt="" style="width:280px">
+                <img src="http://www.bravemedia.ie/wp-content/uploads/2013/02/Panda-Bamboo-2.jpg" alt="" style="width:280px">
+                <img src="http://www.tableau.com/sites/default/files/blog/2012-04-20_1216.png" alt="" style="width:280px">
+            </div>
+          </div>
         </md-content>
       </md-tab>
       <md-tab label="Processing the data">
         <md-content class="md-padding">
-          <p>lalala2</p>
+          <div class="col-md-offset-1 col-md-7">
+             <h3 class="camp-p">
+            Data Cleanup
+            </h3>
+            <p class="camp-p">
+              <span class="heavy">ALOT</span> of Data cleanup
+            </p>
+            <p class="camp-p">
+              Use of Pandas / Pandas DataFrames - Python's version of SQL
+            </p>
+            <h3 class="camp-p">
+              County Level Analysis
+            </h3>
+            <p class="camp-p">
+              Needed to find out Federal Information Processing Standard (FIPS) for every data point
+            </p>
+            <p class="camp-p">
+              Some data sets indexed by FIPS, some data sets indexed by Zip Codes
+            </p>
+            <p class="camp-p">
+              Needed to create mappings to derive FIPS code for many data points
+            </p>
+            <h3 class="camp-p">
+              Visualization
+            </h3>
+            <p class="camp-p">
+              D3 to process the data
+            </p>
+            <p class="camp-p">
+              Normalized data in the front-end
+            </p>
+            <p class="camp-p">
+              Use of TONS of GeoJSONs to create map of USA - long rendering time
+            </p>
+            <p class="camp-p">
+              D3 is pretty amazing but there are many flaws i.e. write alot of code to get something done
+            </p>
+
+          </div>
+          <div class="col-md-4">
+            <img style="padding-top:100px;" src="http://spinnakr.com/blog/wp-content/uploads/2013/09/data-data-everywhere.jpg" alt="">
+            <img style="padding-top:100px;width:500px;" src="http://s27.postimg.org/9y9i6a5r7/Screen_Shot_2015_04_30_at_11_40_47_AM.png" alt="">
+          </div>
+         
         </md-content>
       </md-tab>
     </md-tabs>
